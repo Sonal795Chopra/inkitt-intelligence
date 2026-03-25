@@ -159,9 +159,9 @@ const OUTPUT_SCHEMA = `{
  * @returns {Promise<object>}      Parsed extraction matching the schema above
  */
 export async function extractStandup(transcriptText) {
-  const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY
+  const apiKey = sessionStorage.getItem('inkitt_anthropic_key')
   if (!apiKey) {
-    throw new Error('Missing VITE_ANTHROPIC_API_KEY. Add it to your .env file.')
+    throw new Error('No API key set.')
   }
 
   if (!transcriptText || !transcriptText.trim()) {

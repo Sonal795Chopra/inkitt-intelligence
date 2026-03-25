@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { getApiKey, setApiKey } from './lib/apiKey'
 import { SAMPLE_TRANSCRIPTS } from './data/sampleTranscripts.js'
 import { extractStandup } from './prompts/extraction.js'
 import { matchCrossTeamBlockers } from './prompts/crossTeamMatch.js'
@@ -24,6 +25,7 @@ type LoadingPhase =
 
 export default function App() {
   const [tab, setTab] = useState<AppTab>('intelligence')
+  const [hasKey, setHasKey] = useState<boolean>(() => !!getApiKey())
 
   const [transcripts, setTranscripts] = useState<Record<TeamKey, string>>({
     product: '',
@@ -97,6 +99,10 @@ export default function App() {
     transcripts.datascience.trim().length > 0 &&
     transcripts.content.trim().length > 0 &&
     !isRunning
+
+  if (!hasKey) {
+    return <ApiKeyGate onSave={key => { setApiKey(key); setHasKey(true) }} />
+  }
 
   return (
     <div className="h-screen w-screen flex flex-col bg-[#0d0b09] text-white overflow-hidden">
@@ -191,6 +197,58 @@ function StatusBar({ phase, error }: { phase: LoadingPhase; error: string | null
       )}
       {isDone && <span className="w-1.5 h-1.5 rounded-full bg-[#4E9E8A]" />}
       <span className={isDone ? 'text-[#4E9E8A]' : 'text-white/50'}>{label}</span>
+    </div>
+  )
+}
+
+function ApiKeyGate({ onSave }: { onSave: (key: string) => void }) {
+  const [value, setValue] = useState('')
+  const isValid = value.trim().startsWith('sk-ant-')
+
+  return (
+    <div className="h-screen w-screen flex items-center justify-center bg-[#0d0b09]">
+      <div className="w-full max-w-md px-8">
+        <div className="flex items-baseline gap-2 mb-10">
+          <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 800 }} className="text-[28px] text-[#F5EFE8] tracking-tight leading-none">
+            Inkitt
+          </span>
+          <span className="text-[9px] font-bold tracking-widest uppercase text-[#E8714A]/70 self-end pb-[3px]">
+            Org Intelligence
+          </span>
+        </div>
+
+        <p className="text-sm text-white/50 mb-6 leading-relaxed">
+          Enter your Anthropic API key to run the standup analysis pipeline. The key is stored in your browser session only — never sent anywhere except the Anthropic API.
+        </p>
+
+        <div className="flex flex-col gap-3">
+          <input
+            type="password"
+            value={value}
+            onChange={e => setValue(e.target.value)}
+            placeholder="sk-ant-api03-…"
+            autoFocus
+            onKeyDown={e => e.key === 'Enter' && isValid && onSave(value)}
+            className="w-full bg-[#1a1714] border border-[#2a2520] rounded-md px-4 py-3 text-sm text-white/80 placeholder-white/20 outline-none focus:border-[#E8714A]/50 font-mono"
+          />
+          <button
+            onClick={() => onSave(value)}
+            disabled={!isValid}
+            className={[
+              'w-full py-3 rounded-md text-sm font-semibold transition-all',
+              isValid
+                ? 'bg-[#E8714A] text-white hover:bg-[#d4623c] cursor-pointer'
+                : 'bg-[#1a1714] border border-[#2a2520] text-white/20 cursor-not-allowed',
+            ].join(' ')}
+          >
+            Enter
+          </button>
+        </div>
+
+        <p className="text-xs text-white/20 mt-5">
+          Get a key at console.anthropic.com → API Keys
+        </p>
+      </div>
     </div>
   )
 }

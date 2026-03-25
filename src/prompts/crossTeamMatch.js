@@ -149,9 +149,9 @@ a match_id reference, and urgency = "today" or "this_week".
  * @returns {Promise<object>}        Match results: matches, shared_bottlenecks, escalate_to_ceo
  */
 export async function matchCrossTeamBlockers(extractedTeams) {
-  const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY
+  const apiKey = sessionStorage.getItem('inkitt_anthropic_key')
   if (!apiKey) {
-    throw new Error('Missing VITE_ANTHROPIC_API_KEY. Add it to your .env file.')
+    throw new Error('No API key set.')
   }
   if (!Array.isArray(extractedTeams) || extractedTeams.length < 2) {
     throw new Error('matchCrossTeamBlockers requires at least two team extractions.')
