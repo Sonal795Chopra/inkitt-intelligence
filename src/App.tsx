@@ -4,14 +4,16 @@ import { SAMPLE_TRANSCRIPTS } from './data/sampleTranscripts.js'
 import { extractStandup } from './prompts/extraction.js'
 import { matchCrossTeamBlockers } from './prompts/crossTeamMatch.js'
 import { generateCEODigest } from './prompts/ceoDigest.js'
+import { buildCommitmentLedger } from './utils/commitmentLedger.js'
 import TranscriptPanel from './components/TranscriptPanel'
 import IntelligencePanel from './components/IntelligencePanel'
 import DigestPanel from './components/DigestPanel'
 import OrgDashboard from './components/OrgDashboard'
+import CommitmentsTab from './components/CommitmentsTab'
 
 const TEAMS = ['product', 'datascience', 'content'] as const
 type TeamKey = typeof TEAMS[number]
-type AppTab = 'intelligence' | 'dashboard'
+type AppTab = 'intelligence' | 'dashboard' | 'commitments'
 
 type LoadingPhase =
   | 'idle'
@@ -41,6 +43,7 @@ export default function App() {
 
   const [matcherOutput, setMatcherOutput] = useState<object | null>(null)
   const [digestOutput, setDigestOutput] = useState<object | null>(null)
+  const [commitments, setCommitments] = useState<object[] | null>(null)
   const [phase, setPhase] = useState<LoadingPhase>('idle')
   const [error, setError] = useState<string | null>(null)
 
@@ -53,6 +56,7 @@ export default function App() {
     setExtracted({ product: null, datascience: null, content: null })
     setMatcherOutput(null)
     setDigestOutput(null)
+    setCommitments(null)
 
     try {
       setPhase('extracting_product')
@@ -81,6 +85,9 @@ export default function App() {
       setPhase('generating_digest')
       const digest = await generateCEODigest(matcher, [productResult, dsResult, contentResult])
       setDigestOutput(digest)
+
+      const ledger = buildCommitmentLedger([productResult, dsResult, contentResult], matcher)
+      setCommitments(ledger)
 
       setPhase('done')
     } catch (e: unknown) {
@@ -119,7 +126,7 @@ export default function App() {
             </span>
           </div>
           <div className="flex items-center gap-0 pl-2">
-            {(['intelligence', 'dashboard'] as AppTab[]).map(t => (
+            {(['intelligence', 'dashboard', 'commitments'] as AppTab[]).map(t => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
@@ -130,7 +137,7 @@ export default function App() {
                     : 'text-white/35 border-transparent hover:text-white/60',
                 ].join(' ')}
               >
-                {t === 'intelligence' ? 'Intelligence' : 'Org Dashboard'}
+                {t === 'intelligence' ? 'Intelligence' : t === 'dashboard' ? 'Org Dashboard' : 'Commitments'}
               </button>
             ))}
           </div>
@@ -156,12 +163,14 @@ export default function App() {
           <IntelligencePanel extracted={extracted} matcherOutput={matcherOutput} />
           <DigestPanel digest={digestOutput} />
         </div>
-      ) : (
+      ) : tab === 'dashboard' ? (
         <OrgDashboard
           extracted={extracted}
           matcherOutput={matcherOutput}
           digestOutput={digestOutput}
         />
+      ) : (
+        <CommitmentsTab commitments={commitments as any} />
       )}
     </div>
   )
