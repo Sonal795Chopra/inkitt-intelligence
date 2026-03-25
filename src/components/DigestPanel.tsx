@@ -33,7 +33,7 @@ export default function DigestPanel({ digest }: Props) {
 
   return (
     <div className="w-[420px] shrink-0 flex flex-col overflow-hidden">
-      <div className="px-4 pt-4 pb-3 shrink-0 border-b border-[#2a2a2a]">
+      <div className="px-4 pt-4 pb-3 shrink-0 border-b border-[#2a2520]">
         <p className="text-xs text-white/30 uppercase tracking-widest">CEO Morning Digest</p>
       </div>
 
@@ -62,7 +62,7 @@ export default function DigestPanel({ digest }: Props) {
             </div>
 
             {/* Divider */}
-            <div className="border-t border-[#2a2a2a] pt-4">
+            <div className="border-t border-[#2a2520] pt-4">
               <p className="text-[10px] text-white/30 uppercase tracking-widest mb-3">Company Pulse</p>
               <PulseSection pulse={data.company_pulse} />
             </div>
@@ -82,10 +82,10 @@ function ItemCard({ item }: { item: DigestItem }) {
       className={[
         'rounded-lg border overflow-hidden',
         isRed
-          ? 'border-[#ef4444]/30 bg-[#ef4444]/5'
+          ? 'border-[#E8714A]/30 bg-[#E8714A]/5'
           : isGreen
-            ? 'border-[#22c55e]/30 bg-[#22c55e]/5'
-            : 'border-[#f59e0b]/30 bg-[#f59e0b]/5',
+            ? 'border-[#4E9E8A]/30 bg-[#4E9E8A]/5'
+            : 'border-[#E8B84B]/30 bg-[#E8B84B]/5',
       ].join(' ')}
     >
       {/* Item header */}
@@ -98,7 +98,7 @@ function ItemCard({ item }: { item: DigestItem }) {
           className={[
             'text-[10px] font-semibold px-1.5 py-0.5 rounded',
             item.due === 'today'
-              ? 'bg-[#ef4444]/20 text-[#ef4444]'
+              ? 'bg-[#E8714A]/20 text-[#E8714A]'
               : 'bg-white/10 text-white/50',
           ].join(' ')}
         >
@@ -135,16 +135,16 @@ function PulseSection({ pulse }: { pulse: CompanyPulse }) {
     <div className="flex flex-col gap-3">
       {/* Stats row */}
       <div className="flex gap-3">
-        <div className="flex-1 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-3">
-          <p className="text-2xl font-bold text-[#ef4444]">{pulse.total_days_lost_to_waiting}</p>
+        <div className="flex-1 bg-[#1a1714] border border-[#2a2520] rounded-lg p-3">
+          <p className="text-2xl font-bold text-[#E8714A]">{pulse.total_days_lost_to_waiting}</p>
           <p className="text-[10px] text-white/30 mt-0.5">days lost to waiting</p>
         </div>
-        <div className="flex-1 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-3">
-          <p className="text-2xl font-bold text-[#22c55e]">{pulse.teams_on_track.length}</p>
+        <div className="flex-1 bg-[#1a1714] border border-[#2a2520] rounded-lg p-3">
+          <p className="text-2xl font-bold text-[#4E9E8A]">{pulse.teams_on_track.length}</p>
           <p className="text-[10px] text-white/30 mt-0.5">teams on track</p>
         </div>
-        <div className="flex-1 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-3">
-          <p className="text-2xl font-bold text-[#f59e0b]">{pulse.teams_at_risk.length}</p>
+        <div className="flex-1 bg-[#1a1714] border border-[#2a2520] rounded-lg p-3">
+          <p className="text-2xl font-bold text-[#E8B84B]">{pulse.teams_at_risk.length}</p>
           <p className="text-[10px] text-white/30 mt-0.5">teams at risk</p>
         </div>
       </div>
@@ -157,7 +157,7 @@ function PulseSection({ pulse }: { pulse: CompanyPulse }) {
             {pulse.teams_on_track.map(team => (
               <span
                 key={team}
-                className="text-xs px-2 py-0.5 rounded-full bg-[#22c55e]/15 text-[#22c55e] border border-[#22c55e]/25"
+                className="text-xs px-2 py-0.5 rounded-full bg-[#4E9E8A]/15 text-[#4E9E8A] border border-[#4E9E8A]/25"
               >
                 {team}
               </span>
@@ -174,7 +174,7 @@ function PulseSection({ pulse }: { pulse: CompanyPulse }) {
             {pulse.teams_at_risk.map(team => (
               <span
                 key={team}
-                className="text-xs px-2 py-0.5 rounded-full bg-[#ef4444]/15 text-[#ef4444] border border-[#ef4444]/25"
+                className="text-xs px-2 py-0.5 rounded-full bg-[#E8714A]/15 text-[#E8714A] border border-[#E8714A]/25"
               >
                 {team}
               </span>
@@ -191,7 +191,7 @@ function PulseSection({ pulse }: { pulse: CompanyPulse }) {
             {pulse.shared_bottlenecks.map((b, i) => (
               <div
                 key={i}
-                className="text-xs text-white/50 bg-[#1a1a1a] border border-[#2a2a2a] rounded px-2.5 py-1.5"
+                className="text-xs text-white/50 bg-[#1a1714] border border-[#2a2520] rounded px-2.5 py-1.5"
               >
                 {b}
               </div>

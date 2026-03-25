@@ -107,7 +107,7 @@ export default function OrgDashboard({ extracted, matcherOutput, digestOutput }:
   const hasData = teams.length > 0
 
   return (
-    <div className="flex-1 overflow-y-auto bg-[#0f0f0f]">
+    <div className="flex-1 overflow-y-auto bg-[#0d0b09]">
       {!hasData ? (
         <div className="flex items-center justify-center h-full">
           <p className="text-xs text-white/20 text-center px-8">
@@ -151,8 +151,8 @@ export default function OrgDashboard({ extracted, matcherOutput, digestOutput }:
 
 function Section({ title, badge, children }: { title: string; badge?: string; children: ReactNode }) {
   return (
-    <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg overflow-hidden h-full flex flex-col">
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-[#2a2a2a] shrink-0">
+    <div className="bg-[#1a1714] border border-[#2a2520] rounded-lg overflow-hidden h-full flex flex-col">
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-[#2a2520] shrink-0">
         <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">{title}</span>
         {badge && (
           <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/5 text-white/30">{badge}</span>
@@ -217,14 +217,14 @@ function OKRBar({ okr, erosion, daysAtRisk }: {
         <span className="text-xs font-medium text-white/80">{okr.label}</span>
         <div className="flex items-center gap-2">
           {daysAtRisk > 0 && (
-            <span className="text-[10px] text-[#ef4444] font-semibold">
+            <span className="text-[10px] text-[#E8714A] font-semibold">
               −{erosion.toFixed(0)} pts · {daysAtRisk}d at risk
             </span>
           )}
           <span className="text-xs font-bold text-white/50">{okr.progress}%</span>
         </div>
       </div>
-      <div className="relative h-5 bg-[#0f0f0f] rounded overflow-hidden border border-[#2a2a2a]">
+      <div className="relative h-5 bg-[#0d0b09] rounded overflow-hidden border border-[#2a2520]">
         {/* Base progress */}
         <div
           className="absolute inset-y-0 left-0 rounded bg-white/10 transition-all duration-700"
@@ -236,17 +236,17 @@ function OKRBar({ okr, erosion, daysAtRisk }: {
           style={{
             width: `${healthy}%`,
             background: healthy < 50
-              ? '#ef4444'
+              ? '#E8714A'
               : healthy < 65
-                ? '#f59e0b'
-                : '#22c55e',
+                ? '#E8B84B'
+                : '#4E9E8A',
             opacity: 0.7,
           }}
         />
         {/* At-risk erosion overlay */}
         {erosion > 0 && (
           <div
-            className="absolute inset-y-0 rounded-r bg-[#ef4444]/40 border-l border-[#ef4444]/60"
+            className="absolute inset-y-0 rounded-r bg-[#E8714A]/40 border-l border-[#E8714A]/60"
             style={{ left: `${healthy}%`, width: `${erosion}%` }}
           />
         )}
@@ -293,7 +293,7 @@ function TeamSparkline({ label, values, health }: { label: string; values: numbe
     return `${x},${y}`
   }).join(' ')
 
-  const dotColor = health === 'green' ? '#22c55e' : health === 'red' ? '#ef4444' : '#f59e0b'
+  const dotColor = health === 'green' ? '#4E9E8A' : health === 'red' ? '#E8714A' : '#E8B84B'
   const lastPt = values[values.length - 1]
   const lastX = pad + (w - pad * 2)
   const lastY = h - pad - ((lastPt - minV) / range) * (h - pad * 2)
@@ -305,7 +305,7 @@ function TeamSparkline({ label, values, health }: { label: string; values: numbe
       <div className="flex items-center justify-between mb-1">
         <span className="text-xs text-white/70">{label}</span>
         <div className="flex items-center gap-1.5">
-          <span className={`text-[10px] ${trend < 0 ? 'text-[#ef4444]' : trend > 0 ? 'text-[#22c55e]' : 'text-white/30'}`}>
+          <span className={`text-[10px] ${trend < 0 ? 'text-[#E8714A]' : trend > 0 ? 'text-[#4E9E8A]' : 'text-white/30'}`}>
             {trend < 0 ? '↓ degrading' : trend > 0 ? '↑ improving' : '→ stable'}
           </span>
           <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: dotColor }} />
@@ -404,7 +404,7 @@ function DependencyMap({ matcher }: { matcher: MatcherOutput | null }) {
             const pb = NODE_POSITIONS[tb as keyof typeof NODE_POSITIONS]
             if (!pa || !pb) return null
 
-            const color = edge.severity === 'critical' ? '#ef4444' : edge.severity === 'high' ? '#f59e0b' : '#6b7280'
+            const color = edge.severity === 'critical' ? '#E8714A' : edge.severity === 'high' ? '#E8B84B' : '#5a5248'
             const strokeW = Math.max(1, Math.min(edge.maxDays * 0.8, 5))
 
             // Curved path
@@ -425,7 +425,7 @@ function DependencyMap({ matcher }: { matcher: MatcherOutput | null }) {
                   filter="url(#glow)"
                 />
                 {/* Match count badge */}
-                <circle cx={mx} cy={my} r={8} fill="#1a1a1a" stroke={color} strokeOpacity={0.4} strokeWidth={0.5} />
+                <circle cx={mx} cy={my} r={8} fill="#1a1714" stroke={color} strokeOpacity={0.4} strokeWidth={0.5} />
                 <text x={mx} y={my + 3.5} textAnchor="middle" fill={color} fontSize={7} fontWeight="bold" opacity={0.9}>
                   {edge.count}
                 </text>
@@ -456,19 +456,19 @@ function DependencyMap({ matcher }: { matcher: MatcherOutput | null }) {
                 {/* Ping ring for bottlenecks */}
                 {isBottleneck && (
                   <>
-                    <circle r={nodeR + 8} fill="none" stroke="#ef4444" strokeWidth={1} opacity={0.3}>
+                    <circle r={nodeR + 8} fill="none" stroke="#E8714A" strokeWidth={1} opacity={0.3}>
                       <animate attributeName="r" values={`${nodeR + 4};${nodeR + 16};${nodeR + 4}`} dur="2s" repeatCount="indefinite" />
                       <animate attributeName="opacity" values="0.5;0;0.5" dur="2s" repeatCount="indefinite" />
                     </circle>
-                    <circle r={nodeR + 4} fill="none" stroke="#ef4444" strokeWidth={0.5} opacity={0.2} />
+                    <circle r={nodeR + 4} fill="none" stroke="#E8714A" strokeWidth={0.5} opacity={0.2} />
                   </>
                 )}
 
                 {/* Node circle */}
                 <circle
                   r={nodeR}
-                  fill="#1a1a1a"
-                  stroke={isBottleneck ? '#ef4444' : teamData ? '#2a2a2a' : '#2a2a2a'}
+                  fill="#1a1714"
+                  stroke={isBottleneck ? '#E8714A' : teamData ? '#2a2a2a' : '#2a2a2a'}
                   strokeWidth={isBottleneck ? 1.5 : 1}
                   strokeOpacity={visible ? 1 : 0}
                   style={{ transition: 'stroke-opacity 0.5s ease' }}
@@ -486,12 +486,12 @@ function DependencyMap({ matcher }: { matcher: MatcherOutput | null }) {
                   {label}
                 </text>
                 {isBottleneck && (
-                  <text y={6} textAnchor="middle" fill="#ef4444" fontSize={6.5}>
+                  <text y={6} textAnchor="middle" fill="#E8714A" fontSize={6.5}>
                     BOTTLENECK
                   </text>
                 )}
                 {critCount > 0 && !isBottleneck && (
-                  <text y={6} textAnchor="middle" fill="#f59e0b" fontSize={6.5} opacity={0.7}>
+                  <text y={6} textAnchor="middle" fill="#E8B84B" fontSize={6.5} opacity={0.7}>
                     {critCount} critical
                   </text>
                 )}
@@ -503,14 +503,14 @@ function DependencyMap({ matcher }: { matcher: MatcherOutput | null }) {
         {/* Legend */}
         <div className="flex items-center gap-3 mt-1 px-1">
           <span className="flex items-center gap-1 text-[9px] text-white/30">
-            <span className="inline-block w-5 h-0.5 bg-[#ef4444]" /> critical
+            <span className="inline-block w-5 h-0.5 bg-[#E8714A]" /> critical
           </span>
           <span className="flex items-center gap-1 text-[9px] text-white/30">
-            <span className="inline-block w-5 h-0.5 bg-[#f59e0b]" /> high
+            <span className="inline-block w-5 h-0.5 bg-[#E8B84B]" /> high
           </span>
           <span className="flex items-center gap-1 text-[9px] text-white/30">
-            <span className="inline-block w-3 h-0.5 bg-[#ef4444]" />
-            <span className="inline-block w-3 h-0.5 bg-[#ef4444]" />
+            <span className="inline-block w-3 h-0.5 bg-[#E8714A]" />
+            <span className="inline-block w-3 h-0.5 bg-[#E8714A]" />
             pulsing ring = bottleneck
           </span>
         </div>
@@ -545,7 +545,7 @@ function CommitmentSection({ teams }: { teams: TeamExtraction[] }) {
 function CommitmentBar({ person }: { person: { name: string; team: string; rate: number; atRisk: boolean } }) {
   const isBad = person.rate < 60
   const isOk  = person.rate >= 60 && person.rate < 75
-  const color  = isBad ? '#ef4444' : isOk ? '#f59e0b' : '#22c55e'
+  const color  = isBad ? '#E8714A' : isOk ? '#E8B84B' : '#4E9E8A'
   const teamLabel = TEAM_LABELS[person.team] ?? person.team
 
   return (
@@ -555,19 +555,19 @@ function CommitmentBar({ person }: { person: { name: string; team: string; rate:
         <div className="flex items-center gap-1.5">
           <span className="text-[9px] text-white/25">{teamLabel}</span>
           {person.atRisk && (
-            <span className="text-[9px] text-[#f59e0b]">⚠</span>
+            <span className="text-[9px] text-[#E8B84B]">⚠</span>
           )}
           <span className="text-[10px] font-bold" style={{ color }}>{person.rate}%</span>
         </div>
       </div>
-      <div className="h-1.5 bg-[#0f0f0f] rounded-full overflow-hidden">
+      <div className="h-1.5 bg-[#0d0b09] rounded-full overflow-hidden">
         <div
           className="h-full rounded-full transition-all duration-700"
           style={{ width: `${person.rate}%`, backgroundColor: color, opacity: 0.75 }}
         />
       </div>
       {isBad && (
-        <p className="text-[9px] text-[#ef4444]/70 mt-0.5">Below threshold — review commitments</p>
+        <p className="text-[9px] text-[#E8714A]/70 mt-0.5">Below threshold — review commitments</p>
       )}
     </div>
   )
@@ -628,7 +628,7 @@ function ActionBoard({ matcher, digest }: { matcher: MatcherOutput | null; diges
       <div className="overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
-            <tr className="border-b border-[#2a2a2a]">
+            <tr className="border-b border-[#2a2520]">
               {['Action', 'Owner', 'Due', 'Unblocks', 'OKR'].map(h => (
                 <th key={h} className="text-left text-[9px] font-semibold uppercase tracking-widest text-white/25 px-4 py-2">
                   {h}
@@ -638,17 +638,17 @@ function ActionBoard({ matcher, digest }: { matcher: MatcherOutput | null; diges
           </thead>
           <tbody className="divide-y divide-[#2a2a2a]">
             {rows.map((row, i) => (
-              <tr key={i} className={row.urgent ? 'bg-[#ef4444]/4' : ''}>
+              <tr key={i} className={row.urgent ? 'bg-[#E8714A]/5' : ''}>
                 <td className="px-4 py-2.5 max-w-[240px]">
                   <span className={`leading-snug ${row.urgent ? 'text-white/80' : 'text-white/55'}`}>
-                    {row.urgent && <span className="text-[#ef4444] mr-1">▲</span>}
+                    {row.urgent && <span className="text-[#E8714A] mr-1">▲</span>}
                     {row.action.length > 90 ? row.action.slice(0, 90) + '…' : row.action}
                   </span>
                 </td>
                 <td className="px-4 py-2.5 whitespace-nowrap text-white/70 font-medium">{row.owner}</td>
                 <td className="px-4 py-2.5 whitespace-nowrap">
                   <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                    row.due === 'Today' ? 'bg-[#ef4444]/20 text-[#ef4444]' : 'bg-white/5 text-white/40'
+                    row.due === 'Today' ? 'bg-[#E8714A]/20 text-[#E8714A]' : 'bg-white/5 text-white/40'
                   }`}>
                     {row.due}
                   </span>
@@ -713,11 +713,11 @@ function ImpactCard({ match }: { match: Match }) {
   const baseProgress = okr?.progress ?? 65
 
   return (
-    <div className="border border-[#2a2a2a] rounded-lg p-3 bg-[#0f0f0f]">
+    <div className="border border-[#2a2520] rounded-lg p-3 bg-[#0d0b09]">
       {/* Header */}
       <div className="flex items-start justify-between mb-2.5">
         <div>
-          <span className="text-[10px] font-bold text-[#ef4444] uppercase tracking-widest">Critical</span>
+          <span className="text-[10px] font-bold text-[#E8714A] uppercase tracking-widest">Critical</span>
           <p className="text-xs font-semibold text-white mt-0.5">
             {match.person_a} ← {match.person_b}
           </p>
@@ -726,7 +726,7 @@ function ImpactCard({ match }: { match: Match }) {
           </p>
         </div>
         <div className="text-right">
-          <p className="text-2xl font-bold text-[#ef4444]">{alreadyLost}d</p>
+          <p className="text-2xl font-bold text-[#E8714A]">{alreadyLost}d</p>
           <p className="text-[9px] text-white/30">already lost</p>
         </div>
       </div>
@@ -735,37 +735,37 @@ function ImpactCard({ match }: { match: Match }) {
       <div className="mb-2">
         <div className="flex items-center justify-between mb-1">
           <span className="text-[9px] text-white/40">{okrLabel}</span>
-          <span className="text-[9px] text-[#ef4444]">
+          <span className="text-[9px] text-[#E8714A]">
             −{currentErosion.toFixed(0)} pts now · −{projectedErosion.toFixed(0)} pts in 5 days
           </span>
         </div>
-        <div className="relative h-4 bg-[#1a1a1a] rounded border border-[#2a2a2a] overflow-hidden">
+        <div className="relative h-4 bg-[#1a1714] rounded border border-[#2a2520] overflow-hidden">
           {/* Current healthy portion */}
           <div
-            className="absolute inset-y-0 left-0 bg-[#22c55e]/50 rounded"
+            className="absolute inset-y-0 left-0 bg-[#4E9E8A]/50 rounded"
             style={{ width: `${baseProgress - currentErosion}%` }}
           />
           {/* Current erosion */}
           <div
-            className="absolute inset-y-0 bg-[#ef4444]/40 border-l border-[#ef4444]/40"
+            className="absolute inset-y-0 bg-[#E8714A]/40 border-l border-[#E8714A]/40"
             style={{ left: `${baseProgress - currentErosion}%`, width: `${currentErosion}%` }}
           />
           {/* Projected additional erosion */}
           <div
-            className="absolute inset-y-0 bg-[#ef4444]/20 border-l border-[#ef4444]/20 border-dashed"
+            className="absolute inset-y-0 bg-[#E8714A]/20 border-l border-[#E8714A]/20 border-dashed"
             style={{ left: `${baseProgress}%`, width: `${projectedErosion - currentErosion}%` }}
           />
           {/* Labels */}
           <div className="absolute inset-0 flex items-center justify-between px-1.5">
             <span className="text-[8px] text-white/50">{(baseProgress - currentErosion).toFixed(0)}%</span>
-            <span className="text-[8px] text-[#ef4444]/60">→ {(baseProgress - projectedErosion).toFixed(0)}%</span>
+            <span className="text-[8px] text-[#E8714A]/60">→ {(baseProgress - projectedErosion).toFixed(0)}%</span>
           </div>
         </div>
       </div>
 
       {/* Consequence */}
       {okrDetail && (
-        <p className="text-[10px] text-white/35 leading-snug border-t border-[#2a2a2a] pt-2">
+        <p className="text-[10px] text-white/35 leading-snug border-t border-[#2a2520] pt-2">
           ⚠ {okrDetail}
         </p>
       )}

@@ -65,8 +65,8 @@ export default function IntelligencePanel({ extracted, matcherOutput }: Props) {
   }
 
   return (
-    <div className="flex-1 flex flex-col border-r border-[#2a2a2a] overflow-hidden">
-      <div className="px-4 pt-4 pb-3 shrink-0 border-b border-[#2a2a2a]">
+    <div className="flex-1 flex flex-col border-r border-[#2a2520] overflow-hidden">
+      <div className="px-4 pt-4 pb-3 shrink-0 border-b border-[#2a2520]">
         <p className="text-xs text-white/30 uppercase tracking-widest">Team Intelligence</p>
       </div>
 
@@ -105,9 +105,9 @@ function TeamCard({
   const healthDot = data ? healthColor(data.team_health) : null
 
   return (
-    <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg overflow-hidden">
+    <div className="bg-[#1a1714] border border-[#2a2520] rounded-lg overflow-hidden">
       {/* Card header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[#2a2a2a]">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[#2a2520]">
         <div className="flex items-center gap-2">
           {healthDot ? (
             <span className={`w-2 h-2 rounded-full ${healthDot}`} />
@@ -165,12 +165,12 @@ function MemberRow({
         <div className="flex items-center gap-1.5 flex-wrap min-w-0">
           <span className="text-xs font-semibold text-white shrink-0">{member.name}</span>
           {isCEO && (
-            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#ef4444]/20 text-[#ef4444] border border-[#ef4444]/30 shrink-0">
+            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#E8714A]/20 text-[#E8714A] border border-[#E8714A]/30 shrink-0">
               CEO ⚠
             </span>
           )}
           {isCrossTeam && (
-            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#f97316]/20 text-[#f97316] border border-[#f97316]/30 shrink-0">
+            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#E8B84B]/20 text-[#E8B84B] border border-[#E8B84B]/30 shrink-0">
               CROSS-TEAM ↗
             </span>
           )}
@@ -190,7 +190,7 @@ function MemberRow({
 function blockerChip(blocker: Member['blocker']) {
   if (!blocker.exists) {
     return (
-      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#22c55e]/15 text-[#22c55e] border border-[#22c55e]/25">
+      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#4E9E8A]/15 text-[#4E9E8A] border border-[#4E9E8A]/25">
         CLEAR
       </span>
     )
@@ -202,7 +202,7 @@ function blockerChip(blocker: Member['blocker']) {
   if (type === 'waiting_known' || type === 'waiting_unknown') {
     const label = type === 'waiting_known' ? 'WAITING' : 'UNRESOLVED'
     return (
-      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#ef4444]/15 text-[#ef4444] border border-[#ef4444]/25">
+      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#E8714A]/15 text-[#E8714A] border border-[#E8714A]/25">
         {label}{days > 0 ? ` · ${days}d` : ''}
       </span>
     )
@@ -210,7 +210,7 @@ function blockerChip(blocker: Member['blocker']) {
 
   if (type === 'fundamental') {
     return (
-      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#f59e0b]/15 text-[#f59e0b] border border-[#f59e0b]/25">
+      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#E8B84B]/15 text-[#E8B84B] border border-[#E8B84B]/25">
         FUNDAMENTAL
       </span>
     )
@@ -218,14 +218,14 @@ function blockerChip(blocker: Member['blocker']) {
 
   // at_risk or other
   return (
-    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#f59e0b]/15 text-[#f59e0b] border border-[#f59e0b]/25">
+    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#E8B84B]/15 text-[#E8B84B] border border-[#E8B84B]/25">
       CONFLICT
     </span>
   )
 }
 
 function healthColor(health: string) {
-  if (health === 'green') return 'bg-[#22c55e]'
-  if (health === 'red') return 'bg-[#ef4444]'
-  return 'bg-[#f59e0b]' // amber
+  if (health === 'green') return 'bg-[#4E9E8A]'
+  if (health === 'red') return 'bg-[#E8714A]'
+  return 'bg-[#E8B84B]' // amber
 }

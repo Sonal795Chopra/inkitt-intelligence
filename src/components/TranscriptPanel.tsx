@@ -28,13 +28,13 @@ export default function TranscriptPanel({
   const [activeTab, setActiveTab] = useState<TeamKey>('product')
 
   return (
-    <div className="w-[380px] shrink-0 flex flex-col border-r border-[#2a2a2a]">
+    <div className="w-[380px] shrink-0 flex flex-col border-r border-[#2a2520]">
       {/* Panel header */}
       <div className="px-4 pt-4 pb-0 shrink-0">
         <p className="text-xs text-white/30 uppercase tracking-widest mb-3">Standup Transcripts</p>
 
         {/* Tabs */}
-        <div className="flex gap-0 border-b border-[#2a2a2a]">
+        <div className="flex gap-0 border-b border-[#2a2520]">
           {TABS.map(tab => (
             <button
               key={tab.key}
@@ -42,13 +42,13 @@ export default function TranscriptPanel({
               className={[
                 'px-3 py-2 text-xs font-medium transition-colors cursor-pointer',
                 activeTab === tab.key
-                  ? 'text-white border-b-2 border-white -mb-px'
+                  ? 'text-[#F5EFE8] border-b-2 border-[#E8714A] -mb-px'
                   : 'text-white/40 hover:text-white/70',
               ].join(' ')}
             >
               {tab.label}
               {transcripts[tab.key].trim().length > 0 && (
-                <span className="ml-1.5 inline-block w-1 h-1 rounded-full bg-[#22c55e] align-middle" />
+                <span className="ml-1.5 inline-block w-1 h-1 rounded-full bg-[#4E9E8A] align-middle" />
               )}
             </button>
           ))}
@@ -73,7 +73,7 @@ export default function TranscriptPanel({
           onChange={e => onTranscriptChange(activeTab, e.target.value)}
           placeholder="Paste standup transcript here…"
           spellCheck={false}
-          className="flex-1 w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-md px-3 py-2.5 text-xs text-white/80 placeholder-white/20 resize-none outline-none focus:border-white/30 font-mono leading-relaxed min-h-0"
+          className="flex-1 w-full bg-[#1a1714] border border-[#2a2520] rounded-md px-3 py-2.5 text-xs text-white/80 placeholder-white/20 resize-none outline-none focus:border-white/30 font-mono leading-relaxed min-h-0"
         />
       </div>
 
@@ -87,8 +87,8 @@ export default function TranscriptPanel({
             canRun
               ? 'bg-white text-black hover:bg-white/90 cursor-pointer'
               : isRunning
-                ? 'bg-[#1a1a1a] border border-[#2a2a2a] text-white/40 cursor-not-allowed'
-                : 'bg-[#1a1a1a] border border-[#2a2a2a] text-white/20 cursor-not-allowed',
+                ? 'bg-[#1a1714] border border-[#2a2520] text-white/40 cursor-not-allowed'
+                : 'bg-[#1a1714] border border-[#2a2520] text-white/20 cursor-not-allowed',
           ].join(' ')}
         >
           {isRunning ? (

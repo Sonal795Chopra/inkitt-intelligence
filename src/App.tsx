@@ -99,15 +99,17 @@ export default function App() {
     !isRunning
 
   return (
-    <div className="h-screen w-screen flex flex-col bg-[#0f0f0f] text-white overflow-hidden">
+    <div className="h-screen w-screen flex flex-col bg-[#0d0b09] text-white overflow-hidden">
       {/* Header */}
-      <header className="flex items-center justify-between px-5 py-0 border-b border-[#2a2a2a] shrink-0">
+      <header className="flex items-center justify-between px-5 py-0 border-b border-[#2a2520] shrink-0">
         {/* Left: wordmark + tabs */}
         <div className="flex items-center gap-0">
-          <div className="flex items-center gap-3 pr-6 border-r border-[#2a2a2a] py-3">
-            <div className="w-2 h-2 rounded-full bg-[#ef4444]" />
-            <span className="text-sm font-semibold tracking-widest uppercase text-white/60">
-              Inkitt Org Intelligence
+          <div className="flex items-center gap-2 pr-6 border-r border-[#2a2520] py-3">
+            <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 800 }} className="text-[21px] text-[#F5EFE8] tracking-tight leading-none">
+              Inkitt
+            </span>
+            <span className="text-[9px] font-bold tracking-widest uppercase text-[#E8714A]/70 self-end pb-[3px]">
+              Org Intelligence
             </span>
           </div>
           <div className="flex items-center gap-0 pl-2">
@@ -162,8 +164,8 @@ export default function App() {
 function StatusBar({ phase, error }: { phase: LoadingPhase; error: string | null }) {
   if (error) {
     return (
-      <div className="flex items-center gap-2 text-xs text-[#ef4444]">
-        <span className="w-1.5 h-1.5 rounded-full bg-[#ef4444]" />
+      <div className="flex items-center gap-2 text-xs text-[#E8714A]">
+        <span className="w-1.5 h-1.5 rounded-full bg-[#E8714A]" />
         Error — check console
       </div>
     )
@@ -187,8 +189,8 @@ function StatusBar({ phase, error }: { phase: LoadingPhase; error: string | null
       {!isDone && (
         <span className="inline-block w-3 h-3 border-2 border-white/20 border-t-white/60 rounded-full animate-spin" />
       )}
-      {isDone && <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" />}
-      <span className={isDone ? 'text-[#22c55e]' : 'text-white/50'}>{label}</span>
+      {isDone && <span className="w-1.5 h-1.5 rounded-full bg-[#4E9E8A]" />}
+      <span className={isDone ? 'text-[#4E9E8A]' : 'text-white/50'}>{label}</span>
     </div>
   )
 }
