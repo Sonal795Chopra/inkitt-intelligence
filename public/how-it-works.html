@@ -1,0 +1,730 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How Inkitt Org Intelligence Works</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0d0b09;
+      --card:     #1a1714;
+      --border:   #2a2520;
+      --coral:    #E8714A;
+      --teal:     #4E9E8A;
+      --gold:     #E8B84B;
+      --cream:    #F5EFE8;
+      --muted:    rgba(245,239,232,0.40);
+      --subtle:   rgba(245,239,232,0.18);
+      --faint:    rgba(245,239,232,0.08);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--cream);
+      font-family: 'Inter', sans-serif;
+      font-weight: 400;
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    /* ── NAV ─────────────────────────────────────────────────── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(13,11,9,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 48px; height: 56px;
+    }
+    .nav-logo {
+      display: flex; align-items: baseline; gap: 8px;
+    }
+    .nav-logo .wordmark {
+      font-family: 'Playfair Display', serif;
+      font-weight: 800;
+      font-size: 20px;
+      color: var(--cream);
+      letter-spacing: -0.02em;
+    }
+    .nav-logo .sub {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(232,113,74,0.7);
+    }
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      transition: color 0.2s;
+    }
+    nav a:hover { color: var(--cream); }
+    .nav-links { display: flex; gap: 28px; }
+
+    /* ── LAYOUT ──────────────────────────────────────────────── */
+    .page { max-width: 860px; margin: 0 auto; padding: 0 32px 100px; }
+
+    /* ── HERO ────────────────────────────────────────────────── */
+    .hero {
+      padding: 80px 0 64px;
+      border-bottom: 1px solid var(--border);
+    }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--coral); margin-bottom: 20px;
+    }
+    .hero-tag::before {
+      content: ''; display: inline-block;
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--coral);
+    }
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 48px; font-weight: 800;
+      line-height: 1.12; letter-spacing: -0.02em;
+      color: var(--cream);
+      margin-bottom: 20px;
+    }
+    .hero-lead {
+      font-size: 17px; font-weight: 300;
+      color: var(--muted);
+      max-width: 620px;
+      line-height: 1.65;
+    }
+    .hero-meta {
+      display: flex; gap: 32px; margin-top: 36px;
+    }
+    .hero-stat .num {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px; font-weight: 700;
+      color: var(--coral);
+    }
+    .hero-stat .label {
+      font-size: 11px; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.08em;
+    }
+
+    /* ── SECTIONS ────────────────────────────────────────────── */
+    section { padding: 60px 0; border-bottom: 1px solid var(--border); }
+    section:last-child { border-bottom: none; }
+
+    .section-tag {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 10px;
+    }
+    h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 30px; font-weight: 800;
+      letter-spacing: -0.02em; line-height: 1.2;
+      color: var(--cream); margin-bottom: 16px;
+    }
+    h3 {
+      font-size: 14px; font-weight: 600;
+      color: var(--cream); margin-bottom: 8px;
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    p { color: var(--muted); margin-bottom: 14px; }
+    p:last-child { margin-bottom: 0; }
+
+    /* ── PIPELINE DIAGRAM ────────────────────────────────────── */
+    .pipeline {
+      display: flex; align-items: stretch; gap: 0;
+      margin: 36px 0; border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden;
+    }
+    .pipe-stage {
+      flex: 1; padding: 24px 20px;
+      border-right: 1px solid var(--border);
+      position: relative;
+    }
+    .pipe-stage:last-child { border-right: none; }
+    .pipe-num {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .pipe-title {
+      font-size: 15px; font-weight: 600; color: var(--cream);
+      margin-bottom: 6px;
+    }
+    .pipe-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .pipe-arrow {
+      position: absolute; right: -14px; top: 50%;
+      transform: translateY(-50%);
+      width: 28px; height: 28px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; color: var(--muted); z-index: 2;
+    }
+    .stage-1 { background: rgba(232,113,74,0.04); }
+    .stage-1 .pipe-num { color: var(--coral); }
+    .stage-2 { background: rgba(78,158,138,0.04); }
+    .stage-2 .pipe-num { color: var(--teal); }
+    .stage-3 { background: rgba(232,184,75,0.04); }
+    .stage-3 .pipe-num { color: var(--gold); }
+
+    /* ── CARDS ───────────────────────────────────────────────── */
+    .card-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+      margin: 28px 0;
+    }
+    .card-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+    }
+    .card-icon {
+      font-size: 18px; margin-bottom: 10px;
+    }
+    .card h3 {
+      font-size: 12px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      margin-bottom: 6px;
+    }
+    .card p { font-size: 12px; margin-bottom: 0; line-height: 1.55; }
+
+    /* ── CODE BLOCK ──────────────────────────────────────────── */
+    .code-block {
+      background: #100e0c;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin: 20px 0;
+      overflow-x: auto;
+    }
+    .code-block pre {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 12px;
+      line-height: 1.7;
+      color: var(--muted);
+      white-space: pre;
+    }
+    .code-block .key { color: var(--teal); }
+    .code-block .val { color: var(--gold); }
+    .code-block .str { color: rgba(245,239,232,0.55); }
+    .code-block .comment { color: rgba(245,239,232,0.22); font-style: italic; }
+
+    /* ── QUOTE / CALLOUT ─────────────────────────────────────── */
+    .callout {
+      border-left: 3px solid var(--coral);
+      padding: 14px 20px;
+      background: rgba(232,113,74,0.05);
+      border-radius: 0 8px 8px 0;
+      margin: 24px 0;
+    }
+    .callout p { font-size: 13px; color: rgba(245,239,232,0.65); margin: 0; font-style: italic; }
+    .callout.teal { border-left-color: var(--teal); background: rgba(78,158,138,0.05); }
+    .callout.gold  { border-left-color: var(--gold);  background: rgba(232,184,75,0.05); }
+
+    /* ── STEP LIST ───────────────────────────────────────────── */
+    .step-list { list-style: none; margin: 24px 0; display: flex; flex-direction: column; gap: 16px; }
+    .step-list li {
+      display: flex; gap: 16px; align-items: flex-start;
+    }
+    .step-num {
+      flex-shrink: 0;
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .step-body .step-title {
+      font-size: 13px; font-weight: 600; color: var(--cream);
+      margin-bottom: 3px;
+    }
+    .step-body p { font-size: 12px; margin: 0; }
+
+    /* ── UI DIAGRAM ──────────────────────────────────────────── */
+    .ui-diagram {
+      display: flex; gap: 0;
+      border: 1px solid var(--border);
+      border-radius: 10px; overflow: hidden;
+      margin: 28px 0;
+      height: 180px;
+    }
+    .ui-panel {
+      padding: 12px 14px;
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; gap: 5px;
+    }
+    .ui-panel:last-child { border-right: none; }
+    .ui-panel-label {
+      font-size: 9px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      margin-bottom: 4px;
+    }
+    .ui-row {
+      height: 8px; border-radius: 2px;
+      background: var(--faint);
+    }
+    .ui-row.accent { background: rgba(232,113,74,0.25); }
+    .ui-row.teal   { background: rgba(78,158,138,0.25); }
+    .ui-row.gold   { background: rgba(232,184,75,0.25); }
+    .ui-row.short  { width: 60%; }
+    .ui-row.med    { width: 80%; }
+    .ui-chip {
+      display: inline-block;
+      height: 8px; border-radius: 3px;
+      width: 38px; margin-right: 3px;
+    }
+    .chip-row { display: flex; gap: 4px; align-items: center; margin-top: 2px; }
+
+    /* ── TECH STACK ──────────────────────────────────────────── */
+    .stack-row {
+      display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0;
+    }
+    .stack-pill {
+      padding: 5px 12px;
+      border-radius: 100px;
+      border: 1px solid var(--border);
+      font-size: 11px; font-weight: 500;
+      color: var(--muted);
+    }
+    .stack-pill.primary {
+      border-color: rgba(232,113,74,0.35);
+      color: var(--coral);
+      background: rgba(232,113,74,0.06);
+    }
+
+    /* ── DECISION TABLE ──────────────────────────────────────── */
+    table {
+      width: 100%; border-collapse: collapse;
+      margin: 20px 0; font-size: 13px;
+    }
+    th {
+      text-align: left; padding: 8px 16px;
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(42,37,32,0.7);
+      color: var(--muted); vertical-align: top;
+    }
+    td:first-child { color: var(--cream); font-weight: 500; }
+    tr:last-child td { border-bottom: none; }
+
+    /* ── FOOTER ──────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 48px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    footer p { font-size: 12px; color: var(--subtle); margin: 0; }
+    .back-link {
+      font-size: 12px; font-weight: 500;
+      color: var(--coral); text-decoration: none;
+      display: flex; align-items: center; gap-4px;
+    }
+    .back-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <span class="wordmark">Inkitt</span>
+    <span class="sub">Org Intelligence</span>
+  </div>
+  <div class="nav-links">
+    <a href="#problem">Problem</a>
+    <a href="#pipeline">Pipeline</a>
+    <a href="#ui">Interface</a>
+    <a href="#dashboard">Dashboard</a>
+    <a href="#stack">Stack</a>
+    <a href="#decisions">Design Decisions</a>
+  </div>
+</nav>
+
+<!-- PAGE -->
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-tag">Technical Overview</div>
+    <h1>How Inkitt Org<br>Intelligence Works</h1>
+    <p class="hero-lead">
+      A three-stage AI pipeline that transforms raw standup transcripts into a CEO-grade briefing — surfacing cross-team blockers, OKR erosion, and required actions automatically.
+    </p>
+    <div class="hero-meta">
+      <div class="hero-stat">
+        <div class="num">3</div>
+        <div class="label">LLM stages</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">~45s</div>
+        <div class="label">End-to-end runtime</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">3</div>
+        <div class="label">Teams analysed</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">6</div>
+        <div class="label">Dashboard views</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROBLEM -->
+  <section id="problem">
+    <div class="section-tag">01 — The Problem</div>
+    <h2>Signal is buried in noise</h2>
+    <p>
+      Inkitt runs three teams — Product, Data Science, and Content — each doing daily standups. The output is unstructured text: who said what, what they're blocked on, what they committed to. Useful signal exists, but it requires manual extraction to act on.
+    </p>
+    <p>
+      The CEO problem is specific: by the time cross-team blockers surface in a weekly sync, days have already been lost. A DS engineer waiting on a Product decision for 3 days is not visible unless someone manually connects the dots.
+    </p>
+
+    <div class="card-grid three" style="margin-top:28px;">
+      <div class="card">
+        <div class="card-icon">🔍</div>
+        <h3>Hidden Blockers</h3>
+        <p>Cross-team dependencies are invisible in per-team standups. No one owns the connection.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">⏱</div>
+        <h3>Delayed Signal</h3>
+        <p>OKR erosion from blocked engineers accumulates silently before reaching leadership.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📋</div>
+        <h3>Manual Overhead</h3>
+        <p>Synthesising 3 transcripts into an actionable brief takes 30–60 mins of human effort daily.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PIPELINE -->
+  <section id="pipeline">
+    <div class="section-tag">02 — The Solution</div>
+    <h2>A three-stage LLM pipeline</h2>
+    <p>
+      Each stage has a narrow, well-defined job. The output of each stage is structured JSON that feeds directly into the next. This makes the pipeline composable, debuggable, and easy to tune independently.
+    </p>
+
+    <div class="pipeline">
+      <div class="pipe-stage stage-1">
+        <div class="pipe-num">Stage 1 — Extract</div>
+        <div class="pipe-title">Per-team extraction</div>
+        <div class="pipe-desc">Runs in parallel across all three teams. Each call reads one transcript and returns a structured object: every person, what they're working on, their blocker type, days blocked, and OKR tag.</div>
+        <div class="pipe-arrow">→</div>
+      </div>
+      <div class="pipe-stage stage-2">
+        <div class="pipe-num">Stage 2 — Match</div>
+        <div class="pipe-title">Cross-team matching</div>
+        <div class="pipe-desc">Takes all three extracted objects together. Identifies dependency pairs — where person A is blocked waiting on person B from another team — and scores them by severity, days unresolved, and OKR impact.</div>
+        <div class="pipe-arrow">→</div>
+      </div>
+      <div class="pipe-stage stage-3">
+        <div class="pipe-num">Stage 3 — Synthesise</div>
+        <div class="pipe-title">CEO digest generation</div>
+        <div class="pipe-desc">Takes the match output plus all three extractions. Produces a prioritised CEO brief: ranked items with situation, required action, owner, due date, and company-level pulse metrics.</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <p>"Stages 1 run in parallel — all three team extractions fire simultaneously — so total runtime is roughly the slowest single extraction, not the sum of all three."</p>
+    </div>
+
+    <!-- Stage 1 detail -->
+    <h3 style="margin-top:36px; color: var(--coral);">Stage 1 — Extraction prompt design</h3>
+    <p>
+      The extraction prompt instructs the model to read one standup transcript and return a structured JSON object. The key design choice is the <strong style="color:var(--cream)">blocker taxonomy</strong>: rather than a free-text blocker field, the prompt constrains output to four types.
+    </p>
+
+    <div class="code-block">
+      <pre><span class="comment">// Blocker type taxonomy — constrains LLM output</span>
+<span class="key">"waiting_known"</span>   <span class="str">→ blocked, know who can unblock, cross-team</span>
+<span class="key">"waiting_unknown"</span> <span class="str">→ blocked, unclear ownership</span>
+<span class="key">"fundamental"</span>     <span class="str">→ technical/design problem, no clear unblocking path</span>
+<span class="key">"at_risk"</span>         <span class="str">→ not blocked yet, but commitment is at risk</span></pre>
+    </div>
+
+    <p>
+      This taxonomy matters because Stage 2 (matching) only needs to look at <code style="color:var(--teal); font-family:monospace; font-size:12px;">waiting_known</code> blockers — those are the cross-team dependencies. The other types inform the dashboard but don't drive the matching logic.
+    </p>
+
+    <!-- Stage 2 detail -->
+    <h3 style="margin-top:36px; color: var(--teal);">Stage 2 — Cross-team matching</h3>
+    <p>
+      The matcher receives all three extraction objects in a single prompt. It identifies pairs where one person's <code style="color:var(--teal); font-family:monospace; font-size:12px;">waiting_on_team</code> and <code style="color:var(--teal); font-family:monospace; font-size:12px;">waiting_on_person</code> corresponds to a real person in another team's output.
+    </p>
+
+    <div class="code-block">
+      <pre><span class="comment">// Each match object — output by Stage 2</span>
+{
+  <span class="key">"match_id"</span>:           <span class="val">"m1"</span>,
+  <span class="key">"type"</span>:               <span class="val">"cross_team_dependency"</span>,
+  <span class="key">"severity"</span>:           <span class="val">"critical"</span>,     <span class="comment">// critical | high | medium</span>
+  <span class="key">"person_a"</span>:           <span class="val">"Jin"</span>,           <span class="comment">// the blocked person</span>
+  <span class="key">"team_a"</span>:             <span class="val">"datascience"</span>,
+  <span class="key">"person_b"</span>:           <span class="val">"Marcus"</span>,         <span class="comment">// the unblocking person</span>
+  <span class="key">"team_b"</span>:             <span class="val">"product"</span>,
+  <span class="key">"days_unresolved"</span>:    <span class="val">4</span>,
+  <span class="key">"okr_impact"</span>:         <span class="val">"Experiment Velocity — A/B framework delayed"</span>,
+  <span class="key">"recommended_action"</span>: <span class="val">"Marcus to share API spec with Jin by EOD"</span>,
+  <span class="key">"silent"</span>:             <span class="val">false</span>
+}</pre>
+    </div>
+
+    <p>
+      The <code style="color:var(--teal); font-family:monospace; font-size:12px;">silent</code> flag identifies blockers that neither person has raised in their standup — discovered by cross-referencing commitments. These are flagged separately because they represent invisible organisational debt.
+    </p>
+
+    <!-- Stage 3 detail -->
+    <h3 style="margin-top:36px; color: var(--gold);">Stage 3 — CEO digest synthesis</h3>
+    <p>
+      The digest prompt receives the full matcher output plus all three extractions. It is instructed to write for a CEO audience: no technical jargon, prioritised by urgency, with one clear action per item, and a named owner.
+    </p>
+
+    <div class="code-block">
+      <pre><span class="comment">// Each digest item — output by Stage 3</span>
+{
+  <span class="key">"priority"</span>:   <span class="val">1</span>,
+  <span class="key">"status"</span>:     <span class="val">"🔴"</span>,
+  <span class="key">"title"</span>:      <span class="val">"A/B framework blocked — 4 days"</span>,
+  <span class="key">"situation"</span>:  <span class="val">"Jin (DS) cannot run Experiment Velocity tests..."</span>,
+  <span class="key">"how_long"</span>:   <span class="val">"4 days unresolved"</span>,
+  <span class="key">"action"</span>:     <span class="val">"Marcus shares API spec with Jin by EOD"</span>,
+  <span class="key">"owner"</span>:      <span class="val">"Marcus (Product)"</span>,
+  <span class="key">"due"</span>:        <span class="val">"today"</span>,
+  <span class="key">"okr_impact"</span>: <span class="val">"Experiment Velocity"</span>
+}</pre>
+    </div>
+  </section>
+
+  <!-- UI -->
+  <section id="ui">
+    <div class="section-tag">03 — The Interface</div>
+    <h2>Intelligence tab — three panels</h2>
+    <p>
+      The main view is three panels in a fixed horizontal layout. Each panel has a distinct job: input, analysis, and action.
+    </p>
+
+    <!-- UI mockup diagram -->
+    <div class="ui-diagram">
+      <div class="ui-panel" style="width:28%; background: rgba(232,113,74,0.03);">
+        <div class="ui-panel-label" style="color:var(--coral);">① Transcripts</div>
+        <div class="ui-row short"></div>
+        <div class="ui-row med"></div>
+        <div class="ui-row" style="width:90%;"></div>
+        <div class="ui-row short"></div>
+        <div style="flex:1;"></div>
+        <div class="ui-row accent" style="width:100%; height:22px; border-radius:4px;"></div>
+      </div>
+      <div class="ui-panel" style="flex:1; background: rgba(78,158,138,0.03);">
+        <div class="ui-panel-label" style="color:var(--teal);">② Team Intelligence</div>
+        <div class="ui-row med"></div>
+        <div class="chip-row">
+          <div class="ui-chip" style="background:rgba(232,113,74,0.3);"></div>
+          <div class="ui-chip" style="background:rgba(232,184,75,0.3); width:50px;"></div>
+        </div>
+        <div class="ui-row" style="width:70%;"></div>
+        <div class="chip-row">
+          <div class="ui-chip" style="background:rgba(78,158,138,0.3);"></div>
+        </div>
+        <div class="ui-row short"></div>
+        <div class="ui-row med"></div>
+        <div class="chip-row">
+          <div class="ui-chip" style="background:rgba(232,113,74,0.3);"></div>
+          <div class="ui-chip" style="background:rgba(232,113,74,0.3); width:60px;"></div>
+        </div>
+      </div>
+      <div class="ui-panel" style="width:32%; background: rgba(232,184,75,0.03);">
+        <div class="ui-panel-label" style="color:var(--gold);">③ CEO Digest</div>
+        <div class="ui-row short" style="background:rgba(232,113,74,0.15); height:40px; border-radius:4px; margin-bottom:4px;"></div>
+        <div class="ui-row short" style="background:rgba(232,113,74,0.15); height:40px; border-radius:4px; margin-bottom:4px;"></div>
+        <div class="ui-row short" style="background:rgba(78,158,138,0.15); height:30px; border-radius:4px;"></div>
+        <div style="flex:1;"></div>
+        <div class="ui-row" style="width:100%;"></div>
+      </div>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <h3 style="color:var(--coral);">① Transcript Input</h3>
+        <p>Tabbed input for all three teams. A green/teal dot appears on each tab once content is loaded. The Run Analysis button activates only when all three are populated, preventing incomplete analysis.</p>
+      </div>
+      <div class="card">
+        <h3 style="color:var(--teal);">② Team Intelligence</h3>
+        <p>Per-person rows with blocker severity chips. Cross-team and CEO escalation badges are computed client-side by cross-referencing the matcher output — no extra LLM call needed.</p>
+      </div>
+    </div>
+    <div class="card-grid">
+      <div class="card">
+        <h3 style="color:var(--gold);">③ CEO Morning Digest</h3>
+        <p>Priority-ranked items with status, situation, action block, owner, and due date. Below the items: company pulse with days lost, on-track teams, at-risk teams, and shared bottleneck strings.</p>
+      </div>
+      <div class="card">
+        <h3>Progressive Loading</h3>
+        <p>The status bar in the header shows which phase is running. Extractions fire in parallel — each updates its team card as it completes, so the UI populates incrementally rather than all at once.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- DASHBOARD -->
+  <section id="dashboard">
+    <div class="section-tag">04 — The Dashboard</div>
+    <h2>Org Dashboard — six analytical views</h2>
+    <p>
+      The second tab is an ops-level dashboard built from the same extraction data. It doesn't make additional API calls — all six views derive from the three extraction objects plus the matcher output.
+    </p>
+
+    <ul class="step-list">
+      <li>
+        <div class="step-num" style="border-color:var(--coral); color:var(--coral);">1</div>
+        <div class="step-body">
+          <div class="step-title">OKR Progress with Erosion Model</div>
+          <p>Five hardcoded company OKRs, each with a progress percentage. An erosion overlay shows how many OKR points are being lost due to active blockers, calculated as <code style="color:var(--teal); font-family:monospace; font-size:11px;">days_blocked × 1.8 pts</code>, capped at 35% of progress.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-num" style="border-color:var(--teal); color:var(--teal);">2</div>
+        <div class="step-body">
+          <div class="step-title">Team Health Sparklines</div>
+          <p>5-point health trend per team: 4 historical data points (hardcoded from prior standups) plus today's live extracted health. Green → 3, Amber → 2, Red → 1. Shows trend direction: improving / stable / degrading.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-num" style="border-color:var(--gold); color:var(--gold);">3</div>
+        <div class="step-body">
+          <div class="step-title">Blocker Dependency Map</div>
+          <p>Force-directed SVG with three team nodes. Edges are drawn between teams with active cross-team blockers — thickness scales with days unresolved, colour indicates severity. Teams flagged as shared bottlenecks get a pulsing ring animation.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <div class="step-title">Commitment Hit Rate</div>
+          <p>16-person rolling hit rate (6-sprint average). Sorted ascending to surface underperformers. Coral = below 60%, gold = 60–75%, teal = above 75%. People below threshold get a warning line.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <div class="step-title">Action Board</div>
+          <p>Table of required actions derived from the matcher. CEO escalations appear first with an urgent triangle marker. Each row: action text, owner, due date, who is unblocked, and which OKR is affected.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">6</div>
+        <div class="step-body">
+          <div class="step-title">Impact Calculator</div>
+          <p>One card per critical OKR impact. Shows a three-zone bar: healthy progress, current erosion (red solid), and projected erosion in 5 more days (red dashed). The large number shows days already lost.</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- STACK -->
+  <section id="stack">
+    <div class="section-tag">05 — Technical Stack</div>
+    <h2>What it's built with</h2>
+
+    <div class="stack-row">
+      <span class="stack-pill primary">Claude claude-opus-4-6 API</span>
+      <span class="stack-pill primary">React 19</span>
+      <span class="stack-pill primary">TypeScript</span>
+      <span class="stack-pill">Vite 8</span>
+      <span class="stack-pill">Tailwind CSS v4</span>
+      <span class="stack-pill">GitHub Pages</span>
+      <span class="stack-pill">SVG (dependency map)</span>
+      <span class="stack-pill">Google Fonts (Playfair Display)</span>
+    </div>
+
+    <p style="margin-top:8px;">
+      The three prompt files (<code style="color:var(--teal); font-family:monospace; font-size:12px;">extraction.js</code>, <code style="color:var(--teal); font-family:monospace; font-size:12px;">crossTeamMatch.js</code>, <code style="color:var(--teal); font-family:monospace; font-size:12px;">ceoDigest.js</code>) each export a single async function that calls the API and returns parsed JSON. This keeps the prompt logic fully decoupled from the React components.
+    </p>
+    <p>
+      The entire app is a static build. There is no backend. The Anthropic API key is embedded as a Vite environment variable — suitable for a trusted single-user demo; a production version would proxy calls through a backend.
+    </p>
+
+    <div class="callout teal">
+      <p>"All API calls use structured JSON output — the system prompt specifies a strict schema, and the response is parsed with JSON.parse(). If the model returns invalid JSON the UI shows an error state."</p>
+    </div>
+  </section>
+
+  <!-- DECISIONS -->
+  <section id="decisions">
+    <div class="section-tag">06 — Design Decisions</div>
+    <h2>Key choices and why</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Decision</th>
+          <th>Rationale</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Three separate LLM calls vs. one big call</td>
+          <td>Separation of concerns. Each stage can be tuned, replaced, or debugged independently. A single monolithic prompt extracting + matching + synthesising is harder to reason about and iterate on.</td>
+        </tr>
+        <tr>
+          <td>Parallel extraction (Promise.all)</td>
+          <td>The three team extractions have no dependency on each other. Running them in parallel cuts total runtime from ~45s to ~15s. Each result updates the UI immediately as it resolves.</td>
+        </tr>
+        <tr>
+          <td>Structured JSON output (not free text)</td>
+          <td>Every downstream component — badges, chips, bars, maps — needs machine-readable data. A structured schema means the UI can render deterministically without parsing natural language.</td>
+        </tr>
+        <tr>
+          <td>Blocker taxonomy (4 types)</td>
+          <td>Free-text blockers are too vague to act on. Constraining to 4 types forces the model to classify severity and enables the matcher to filter precisely for cross-team dependencies.</td>
+        </tr>
+        <tr>
+          <td>CEO-specific digest stage</td>
+          <td>The extraction and matching outputs are dense and technical. A separate synthesis stage — prompted specifically for CEO reading level — produces language that is immediately actionable without translation.</td>
+        </tr>
+        <tr>
+          <td>OKR erosion calculated client-side</td>
+          <td>Rather than asking the LLM to estimate OKR impact (which varies by interpretation), a simple formula — <code style="font-family:monospace; font-size:11px;">days × 1.8 pts</code> — is applied deterministically. Consistent and fast.</td>
+        </tr>
+        <tr>
+          <td>Dependency map as SVG (not a library)</td>
+          <td>The graph has exactly 3 nodes in fixed positions. Using D3 or a graph library would add significant bundle weight for a layout that can be hardcoded. Hand-drawn SVG paths give full control over aesthetics.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout gold" style="margin-top:32px;">
+      <p>"The goal was a working prototype that could run a real Inkitt standup and surface something genuinely useful — not a polished product. Every decision was made to maximise signal clarity, not feature count."</p>
+    </div>
+  </section>
+
+</div><!-- /page -->
+
+<!-- FOOTER -->
+<footer>
+  <p>Built for Inkitt · March 2026</p>
+  <a href="/inkitt-intelligence/" class="back-link">← Open the tool</a>
+</footer>
+
+</body>
+</html>
