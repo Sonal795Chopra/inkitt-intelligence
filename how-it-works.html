@@ -353,6 +353,7 @@
     <a href="#problem">Problem</a>
     <a href="#pipeline">Pipeline</a>
     <a href="#ui">Interface</a>
+    <a href="#commitments">Commitments</a>
     <a href="#dashboard">Dashboard</a>
     <a href="#stack">Stack</a>
     <a href="#decisions">Design Decisions</a>
@@ -383,8 +384,8 @@
         <div class="label">Teams analysed</div>
       </div>
       <div class="hero-stat">
-        <div class="num">6</div>
-        <div class="label">Dashboard views</div>
+        <div class="num">3</div>
+        <div class="label">App tabs</div>
       </div>
     </div>
   </div>
@@ -587,12 +588,106 @@
     </div>
   </section>
 
+  <!-- COMMITMENTS -->
+  <section id="commitments">
+    <div class="section-tag">04 — Commitments Ledger</div>
+    <h2>Commitments tab — promise tracking across teams</h2>
+    <p>
+      The second tab is a live commitment ledger: every promise made in the standup, tracked by status, owner, due date, and downstream impact. It answers the question the digest doesn't: <em style="color:var(--cream);">who committed to what, and is it slipping?</em>
+    </p>
+
+    <div class="callout teal">
+      <p>"The ledger is built entirely client-side from the extraction and matcher outputs — no extra LLM call. <code style="font-family:monospace; color:var(--teal);">buildCommitmentLedger()</code> is a pure function that derives status, days delta, and downstream impact deterministically."</p>
+    </div>
+
+    <h3 style="margin-top:32px; color:var(--coral);">Commitment object shape</h3>
+    <p>Each commitment is a flat object derived from Stage 1 extraction output, enriched with matcher data:</p>
+
+    <div class="code-block">
+      <pre><span class="comment">// Each commitment in the ledger</span>
+{
+  <span class="key">"id"</span>:          <span class="val">"commit_001"</span>,
+  <span class="key">"owner"</span>:       <span class="val">"Ren"</span>,
+  <span class="key">"team"</span>:        <span class="val">"Content"</span>,
+  <span class="key">"what"</span>:        <span class="val">"Getting started guide first draft"</span>,
+  <span class="key">"due_date"</span>:    <span class="val">"2026-03-25"</span>,      <span class="comment">// parsed from LLM freeform ("by Friday", "EOD", etc.)</span>
+  <span class="key">"status"</span>:      <span class="val">"slipped"</span>,          <span class="comment">// open | due_today | slipped | closed</span>
+  <span class="key">"days_delta"</span>:  <span class="val">-5</span>,                 <span class="comment">// negative = overdue</span>
+  <span class="key">"okr_tag"</span>:     <span class="val">"OKR 1.2"</span>,
+  <span class="key">"at_risk"</span>:     <span class="val">true</span>,
+  <span class="key">"downstream"</span>:  <span class="val">["CEO"]</span>,             <span class="comment">// who is blocked waiting on this person</span>
+  <span class="key">"source"</span>:      <span class="val">"standup"</span>           <span class="comment">// standup | seeded</span>
+}</pre>
+    </div>
+
+    <h3 style="margin-top:32px; color:var(--teal);">Status logic</h3>
+    <p>
+      Status is computed deterministically from <code style="color:var(--teal); font-family:monospace; font-size:12px;">due_date</code> relative to today, with no LLM involvement:
+    </p>
+
+    <div class="code-block">
+      <pre><span class="comment">// computeStatus(dueDate, atRisk)</span>
+<span class="key">delta === 0</span>           <span class="str">→ "due_today"</span>
+<span class="key">delta &gt; 0</span>            <span class="str">→ "open"</span>
+<span class="key">delta &lt; 0</span>            <span class="str">→ "slipped"</span>   <span class="comment">// any overdue = slipped</span>
+
+<span class="comment">// Date parser handles freeform LLM output:</span>
+<span class="key">"EOD" / "today"</span>      <span class="str">→ today's date</span>
+<span class="key">"March 25"</span>           <span class="str">→ 2026-03-25</span>
+<span class="key">"Mar 25th"</span>           <span class="str">→ 2026-03-25</span>
+<span class="key">"25 March"</span>           <span class="str">→ 2026-03-25</span>
+<span class="key">"2026-03-25"</span>         <span class="str">→ passthrough</span>
+<span class="key">"by Friday" etc.</span>     <span class="str">→ null → status defaults to "open"</span></pre>
+    </div>
+
+    <h3 style="margin-top:32px; color:var(--gold);">Downstream cross-reference</h3>
+    <p>
+      The <code style="color:var(--teal); font-family:monospace; font-size:12px;">downstream</code> field is built by joining the commitment ledger with the Stage 2 matcher output. For every cross-team match <code style="font-family:monospace; font-size:12px; color:var(--muted);">(person_a blocked → person_b)</code>, person B's commitment row gets person A in its downstream array. If that match was also CEO-escalated, "CEO" is injected instead — making CEO-impacting slips instantly visible in the ledger.
+    </p>
+
+    <h3 style="margin-top:32px;">Three UI sections</h3>
+    <div class="card-grid three" style="margin-top:16px;">
+      <div class="card">
+        <h3 style="color:var(--coral);">① Summary Bar</h3>
+        <p>Four metric cards: Total Open, Due Today (gold highlight when non-zero), Slipped (coral highlight when non-zero), and Hit Rate %. Hit rate = <code style="font-family:monospace; font-size:11px;">closed ÷ (closed + slipped)</code>.</p>
+      </div>
+      <div class="card">
+        <h3 style="color:var(--teal);">② Commitment Ledger</h3>
+        <p>Full table sorted: slipped (most overdue first) → due today → open (soonest first) → closed. Slipped rows get a coral left border. Status, owner, team, commitment text, due date, days delta, OKR tag, and downstream all shown.</p>
+      </div>
+      <div class="card">
+        <h3 style="color:var(--gold);">③ Team Health</h3>
+        <p>Per-team row with open/due-today/slipped counts, hit rate %, and an inline health bar (teal = closed proportion, coral = slipped proportion). Makes cross-team commitment reliability visible at a glance.</p>
+      </div>
+    </div>
+
+    <h3 style="margin-top:32px;">Seeded historical data</h3>
+    <p>
+      To make hit rate meaningful from day one, the ledger seeds 12 historical items: 7 closed and 5 slipped, distributed across teams to produce realistic per-team rates. This gives the metric weight even on the first run — without it, 0 closed / 0 resolved would render the hit rate blank.
+    </p>
+
+    <div class="card-grid three" style="margin-top:16px;">
+      <div class="card" style="border-color: rgba(78,158,138,0.3);">
+        <h3 style="color:var(--teal);">Product</h3>
+        <p>3 closed + 1 slipped<br><strong style="color:var(--teal);">75% hit rate</strong> — green</p>
+      </div>
+      <div class="card" style="border-color: rgba(232,184,75,0.3);">
+        <h3 style="color:var(--gold);">Data Science</h3>
+        <p>2 closed + 1 slipped<br><strong style="color:var(--gold);">67% hit rate</strong> — amber</p>
+      </div>
+      <div class="card" style="border-color: rgba(232,113,74,0.3);">
+        <h3 style="color:var(--coral);">Content</h3>
+        <p>2 closed + 3 slipped<br><strong style="color:var(--coral);">40% hit rate</strong> — red</p>
+      </div>
+    </div>
+  </section>
+
   <!-- DASHBOARD -->
   <section id="dashboard">
-    <div class="section-tag">04 — The Dashboard</div>
+    <div class="section-tag">05 — The Dashboard</div>
     <h2>Org Dashboard — six analytical views</h2>
     <p>
-      The second tab is an ops-level dashboard built from the same extraction data. It doesn't make additional API calls — all six views derive from the three extraction objects plus the matcher output.
+      The third tab is an ops-level dashboard built from the same extraction data. It doesn't make additional API calls — all six views derive from the three extraction objects plus the matcher output.
     </p>
 
     <ul class="step-list">
@@ -643,7 +738,7 @@
 
   <!-- STACK -->
   <section id="stack">
-    <div class="section-tag">05 — Technical Stack</div>
+    <div class="section-tag">06 — Technical Stack</div>
     <h2>What it's built with</h2>
 
     <div class="stack-row">
@@ -661,7 +756,7 @@
       The three prompt files (<code style="color:var(--teal); font-family:monospace; font-size:12px;">extraction.js</code>, <code style="color:var(--teal); font-family:monospace; font-size:12px;">crossTeamMatch.js</code>, <code style="color:var(--teal); font-family:monospace; font-size:12px;">ceoDigest.js</code>) each export a single async function that calls the API and returns parsed JSON. This keeps the prompt logic fully decoupled from the React components.
     </p>
     <p>
-      The entire app is a static build. There is no backend. The Anthropic API key is embedded as a Vite environment variable — suitable for a trusted single-user demo; a production version would proxy calls through a backend.
+      The entire app is a static build with no backend. The Anthropic API key is entered at runtime via a gate screen on first load and stored in <code style="color:var(--teal); font-family:monospace; font-size:12px;">sessionStorage</code> only — it is never baked into the bundle, never committed to the repository, and cleared automatically when the tab closes. A production version would proxy calls through a backend to remove the key from the browser entirely.
     </p>
 
     <div class="callout teal">
@@ -671,7 +766,7 @@
 
   <!-- DECISIONS -->
   <section id="decisions">
-    <div class="section-tag">06 — Design Decisions</div>
+    <div class="section-tag">07 — Design Decisions</div>
     <h2>Key choices and why</h2>
 
     <table>
@@ -705,6 +800,14 @@
         <tr>
           <td>OKR erosion calculated client-side</td>
           <td>Rather than asking the LLM to estimate OKR impact (which varies by interpretation), a simple formula — <code style="font-family:monospace; font-size:11px;">days × 1.8 pts</code> — is applied deterministically. Consistent and fast.</td>
+        </tr>
+        <tr>
+          <td>Commitment status computed client-side, not by LLM</td>
+          <td>Asking the LLM to decide if a commitment has slipped introduces hallucination risk and latency. Instead, <code style="font-family:monospace; font-size:11px;">computeStatus()</code> compares the parsed due date against today's date deterministically. The LLM only provides the raw date string; the status logic is pure JavaScript.</td>
+        </tr>
+        <tr>
+          <td>Seeded historical data in the ledger</td>
+          <td>Without prior standups, hit rate is always null or 0%, making the metric useless on first use. Seeding 12 realistic closed/slipped items gives the chart immediate meaning and shows per-team differentiation (Product green, DS amber, Content red) from the first analysis run.</td>
         </tr>
         <tr>
           <td>Dependency map as SVG (not a library)</td>
