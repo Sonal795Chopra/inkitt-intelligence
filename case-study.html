@@ -1,0 +1,1412 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inkitt Org Intelligence — Case Study</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0d0b09;
+      --card:    #1a1714;
+      --border:  #2a2520;
+      --coral:   #E8714A;
+      --teal:    #4E9E8A;
+      --gold:    #E8B84B;
+      --blue:    #3B6FA0;
+      --cream:   #F5EFE8;
+      --muted:   rgba(245,239,232,0.40);
+      --subtle:  rgba(245,239,232,0.18);
+      --faint:   rgba(245,239,232,0.08);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--cream);
+      font-family: 'Inter', sans-serif;
+      font-weight: 400;
+      line-height: 1.75;
+      font-size: 15px;
+    }
+
+    /* ── NAV ──────────────────────────────────────────────────── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(13,11,9,0.94);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 48px; height: 56px;
+    }
+    .nav-logo { display: flex; align-items: baseline; gap: 8px; }
+    .nav-logo .wordmark {
+      font-family: 'Playfair Display', serif;
+      font-weight: 800; font-size: 20px;
+      color: var(--cream); letter-spacing: -0.02em;
+    }
+    .nav-logo .sub {
+      font-size: 9px; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: rgba(232,113,74,0.7);
+    }
+    .nav-links { display: flex; gap: 24px; flex-wrap: wrap; }
+    nav a {
+      color: var(--muted); text-decoration: none;
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    nav a:hover { color: var(--cream); }
+
+    /* ── LAYOUT ────────────────────────────────────────────────── */
+    .page { max-width: 860px; margin: 0 auto; padding: 0 32px 100px; }
+
+    /* ── HERO ──────────────────────────────────────────────────── */
+    .hero {
+      padding: 80px 0 60px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 72px;
+    }
+    .hero-eyebrow {
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--coral); margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 800; font-size: clamp(32px, 5vw, 52px);
+      line-height: 1.12; letter-spacing: -0.02em;
+      color: var(--cream); margin-bottom: 16px;
+    }
+    .hero-sub {
+      font-size: 18px; color: var(--muted);
+      font-weight: 300; line-height: 1.6;
+      max-width: 580px; margin-bottom: 40px;
+    }
+    .hero-meta {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 0; border: 1px solid var(--border);
+      border-radius: 8px; overflow: hidden;
+    }
+    .meta-item {
+      padding: 16px 20px;
+      border-right: 1px solid var(--border);
+    }
+    .meta-item:last-child { border-right: none; }
+    .meta-label {
+      font-size: 9px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 4px;
+    }
+    .meta-value {
+      font-size: 14px; font-weight: 500; color: var(--cream);
+    }
+
+    /* ── SECTION ────────────────────────────────────────────────── */
+    .section { margin-bottom: 80px; }
+    .section-number {
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 8px;
+    }
+    .section h2 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 800; font-size: 28px;
+      letter-spacing: -0.01em; color: var(--cream);
+      margin-bottom: 6px;
+    }
+    .section-sub {
+      font-size: 13px; color: var(--muted);
+      margin-bottom: 32px; line-height: 1.5;
+    }
+    .section > p {
+      color: rgba(245,239,232,0.65);
+      margin-bottom: 20px;
+      max-width: 720px;
+    }
+
+    /* ── TYPOGRAPHY ────────────────────────────────────────────── */
+    h3 {
+      font-size: 15px; font-weight: 600;
+      color: var(--cream); margin-bottom: 10px;
+    }
+    p { color: rgba(245,239,232,0.65); line-height: 1.75; }
+
+    /* ── DIVIDER ────────────────────────────────────────────────── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 48px 0;
+    }
+
+    /* ── STAT ROW ────────────────────────────────────────────────── */
+    .stat-row {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 12px; margin: 32px 0;
+    }
+    .stat-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 8px; padding: 20px 16px;
+      text-align: center;
+    }
+    .stat-num {
+      font-size: 36px; font-weight: 700;
+      line-height: 1; margin-bottom: 6px;
+    }
+    .stat-label {
+      font-size: 10px; font-weight: 500;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── PIPELINE FLOW ─────────────────────────────────────────── */
+    .pipeline {
+      display: flex; align-items: center;
+      gap: 0; margin: 32px 0;
+      overflow-x: auto; padding-bottom: 8px;
+    }
+    .pipeline-step {
+      flex: 1; min-width: 110px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 6px; padding: 14px 12px;
+      text-align: center;
+    }
+    .pipeline-step .step-label {
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 4px;
+    }
+    .pipeline-step .step-name {
+      font-size: 12px; font-weight: 500; color: var(--cream);
+      line-height: 1.3;
+    }
+    .pipeline-arrow {
+      width: 32px; flex-shrink: 0;
+      text-align: center; color: var(--muted);
+      font-size: 14px; position: relative;
+    }
+    .pipeline-arrow::before {
+      content: '→';
+    }
+
+    /* ── PRINCIPLE CARDS ───────────────────────────────────────── */
+    .principles { display: flex; flex-direction: column; gap: 12px; margin: 24px 0; }
+    .principle {
+      display: flex; gap: 16px; align-items: flex-start;
+      background: var(--card); border: 1px solid var(--border);
+      border-left-width: 3px; border-radius: 6px;
+      padding: 16px 20px;
+    }
+    .principle-coral  { border-left-color: var(--coral); }
+    .principle-gold   { border-left-color: var(--gold); }
+    .principle-teal   { border-left-color: var(--teal); }
+    .principle-blue   { border-left-color: var(--blue); }
+    .principle-body {}
+    .principle-title {
+      font-size: 13px; font-weight: 600;
+      color: var(--cream); margin-bottom: 4px;
+    }
+    .principle-desc {
+      font-size: 13px; color: var(--muted); line-height: 1.65;
+    }
+
+    /* ── BLOCKQUOTE ────────────────────────────────────────────── */
+    blockquote {
+      border-left: 3px solid var(--gold);
+      background: rgba(232,184,75,0.05);
+      padding: 16px 20px; border-radius: 0 6px 6px 0;
+      margin: 24px 0;
+    }
+    blockquote p {
+      font-size: 15px; font-style: italic;
+      color: rgba(245,239,232,0.75);
+      line-height: 1.6;
+    }
+    blockquote cite {
+      display: block; margin-top: 8px;
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--muted); font-style: normal;
+    }
+    blockquote.coral { border-left-color: var(--coral); background: rgba(232,113,74,0.05); }
+    blockquote.teal  { border-left-color: var(--teal);  background: rgba(78,158,138,0.05); }
+    blockquote.blue  { border-left-color: var(--blue);  background: rgba(59,111,160,0.05); }
+
+    /* ── IN THE TOOL CALLOUT ───────────────────────────────────── */
+    .in-tool {
+      background: rgba(59,111,160,0.08);
+      border: 1px solid rgba(59,111,160,0.25);
+      border-left: 3px solid var(--blue);
+      border-radius: 0 6px 6px 0;
+      padding: 14px 18px;
+      margin: 16px 0;
+    }
+    .in-tool-label {
+      font-size: 9px; font-weight: 700;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: rgba(59,111,160,0.8); margin-bottom: 6px;
+    }
+    .in-tool p {
+      font-size: 13px; color: rgba(245,239,232,0.6);
+      line-height: 1.6;
+    }
+
+    /* ── BLOCKER TAXONOMY TABLE ────────────────────────────────── */
+    .taxonomy {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 12px; margin: 24px 0;
+    }
+    .taxonomy-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 8px; padding: 16px 18px;
+    }
+    .taxonomy-type {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .taxonomy-desc {
+      font-size: 13px; color: var(--muted); margin-bottom: 8px;
+    }
+    .taxonomy-action {
+      font-size: 11px; font-weight: 500;
+      color: var(--cream); background: var(--faint);
+      display: inline-block; padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    /* ── STATE MACHINE ─────────────────────────────────────────── */
+    .state-machine {
+      display: flex; align-items: center;
+      gap: 0; margin: 28px 0;
+      overflow-x: auto; padding-bottom: 8px;
+    }
+    .state {
+      flex: 1; min-width: 90px;
+      text-align: center;
+    }
+    .state-dot {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 2px solid; display: flex;
+      align-items: center; justify-content: center;
+      margin: 0 auto 8px;
+      font-size: 11px; font-weight: 700;
+    }
+    .state-name { font-size: 12px; font-weight: 600; color: var(--cream); margin-bottom: 2px; }
+    .state-trigger { font-size: 10px; color: var(--muted); line-height: 1.4; }
+    .state-green  { border-color: var(--teal); color: var(--teal); background: rgba(78,158,138,0.1); }
+    .state-amber  { border-color: var(--gold); color: var(--gold); background: rgba(232,184,75,0.1); }
+    .state-red    { border-color: var(--coral); color: var(--coral); background: rgba(232,113,74,0.1); }
+    .state-blue   { border-color: var(--blue); color: var(--blue); background: rgba(59,111,160,0.1); }
+    .state-line   { flex-shrink: 0; color: var(--muted); font-size: 18px; padding: 0 4px; margin-bottom: 20px; }
+
+    /* ── RULE TABLE ────────────────────────────────────────────── */
+    .rule-table { width: 100%; border-collapse: collapse; margin: 24px 0; }
+    .rule-table th {
+      text-align: left; font-size: 9px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--muted); padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .rule-table td {
+      padding: 12px 12px; font-size: 13px;
+      color: rgba(245,239,232,0.65);
+      border-bottom: 1px solid rgba(42,37,32,0.6);
+      vertical-align: top;
+    }
+    .rule-table tr:last-child td { border-bottom: none; }
+    .rule-table tr:nth-child(even) td { background: rgba(26,23,20,0.5); }
+    .rule-badge {
+      display: inline-block;
+      font-size: 10px; font-weight: 700;
+      padding: 2px 7px; border-radius: 4px;
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+
+    /* ── SURFACES GRID ─────────────────────────────────────────── */
+    .surfaces {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 12px; margin: 24px 0;
+    }
+    .surface-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 8px; padding: 20px;
+    }
+    .surface-label {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 8px;
+    }
+    .surface-title {
+      font-size: 14px; font-weight: 600;
+      color: var(--cream); margin-bottom: 8px;
+    }
+    .surface-desc {
+      font-size: 12px; color: var(--muted); line-height: 1.6;
+    }
+
+    /* ── CONTRAST PANEL ────────────────────────────────────────── */
+    .contrast {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 0; border: 1px solid var(--border);
+      border-radius: 8px; overflow: hidden;
+      margin: 28px 0;
+    }
+    .contrast-col { padding: 20px 24px; }
+    .contrast-col:first-child { border-right: 1px solid var(--border); }
+    .contrast-label {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .contrast-label.human { color: var(--muted); }
+    .contrast-label.system { color: var(--coral); }
+    .contrast-col p {
+      font-size: 14px; line-height: 1.65;
+      font-style: italic;
+    }
+    .contrast-col.system-col p {
+      color: rgba(245,239,232,0.75);
+    }
+
+    /* ── FAILURE CARDS ─────────────────────────────────────────── */
+    .failure-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 16px; margin: 28px 0;
+    }
+    .failure-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 8px; overflow: hidden;
+    }
+    .failure-top {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(232,113,74,0.04);
+    }
+    .failure-name {
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--coral); margin-bottom: 6px;
+    }
+    .failure-problem {
+      font-size: 13px; color: rgba(245,239,232,0.65);
+      line-height: 1.55;
+    }
+    .failure-bottom { padding: 14px 18px; }
+    .failure-response-label {
+      font-size: 9px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--teal); margin-bottom: 6px;
+    }
+    .failure-response {
+      font-size: 13px; color: rgba(245,239,232,0.6);
+      line-height: 1.55;
+    }
+
+    /* ── SLACK MESSAGES ────────────────────────────────────────── */
+    .slack-messages { display: flex; flex-direction: column; gap: 12px; margin: 24px 0; }
+    .slack-msg {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 8px; padding: 16px 20px;
+    }
+    .slack-time {
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 8px;
+    }
+    .slack-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; line-height: 1.7;
+      color: rgba(245,239,232,0.75);
+      white-space: pre-wrap;
+    }
+    .slack-button {
+      display: inline-block; margin-top: 8px; margin-right: 6px;
+      background: rgba(59,111,160,0.2); border: 1px solid rgba(59,111,160,0.4);
+      color: rgba(100,160,220,0.9); border-radius: 4px;
+      padding: 3px 10px; font-size: 11px; font-weight: 600;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* ── JIRA OUTCOMES ─────────────────────────────────────────── */
+    .jira-outcomes {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 12px; margin: 24px 0;
+    }
+    .jira-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 8px; padding: 16px 18px;
+      border-top-width: 3px;
+    }
+    .jira-card.match { border-top-color: var(--teal); }
+    .jira-card.diverge { border-top-color: var(--gold); }
+    .jira-card.missing { border-top-color: var(--coral); }
+    .jira-scenario {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .jira-card.match .jira-scenario { color: var(--teal); }
+    .jira-card.diverge .jira-scenario { color: var(--gold); }
+    .jira-card.missing .jira-scenario { color: var(--coral); }
+    .jira-title { font-size: 13px; font-weight: 600; color: var(--cream); margin-bottom: 4px; }
+    .jira-action { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+    /* ── BUILT VS NEXT ─────────────────────────────────────────── */
+    .built-vs {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 0; border: 1px solid var(--border);
+      border-radius: 8px; overflow: hidden;
+      margin: 28px 0;
+    }
+    .built-col { padding: 0; }
+    .built-col:first-child { border-right: 1px solid var(--border); }
+    .built-header {
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border);
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .built-col:first-child .built-header { color: var(--teal); background: rgba(78,158,138,0.06); }
+    .built-col:last-child  .built-header { color: var(--gold); background: rgba(232,184,75,0.06); }
+    .built-items { padding: 8px 0; }
+    .built-item {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 12px 20px;
+      border-bottom: 1px solid rgba(42,37,32,0.5);
+    }
+    .built-item:last-child { border-bottom: none; }
+    .built-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      flex-shrink: 0; margin-top: 7px;
+    }
+    .built-col:first-child .built-dot { background: var(--teal); }
+    .built-col:last-child  .built-dot { background: var(--gold); }
+    .built-item-name { font-size: 13px; font-weight: 600; color: var(--cream); margin-bottom: 2px; }
+    .built-item-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+    /* ── WEEK PLAN ─────────────────────────────────────────────── */
+    .week-plan { display: flex; flex-direction: column; gap: 0; margin: 24px 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .week-row {
+      display: flex; align-items: flex-start; gap: 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .week-row:last-child { border-bottom: none; }
+    .week-day {
+      width: 100px; flex-shrink: 0;
+      padding: 14px 16px;
+      border-right: 1px solid var(--border);
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--gold);
+      background: rgba(232,184,75,0.04);
+    }
+    .week-task {
+      padding: 14px 18px;
+      font-size: 13px; color: rgba(245,239,232,0.65);
+      line-height: 1.6; flex: 1;
+    }
+
+    /* ── ROLLOUT PHASES ────────────────────────────────────────── */
+    .rollout {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 12px; margin: 28px 0;
+    }
+    .phase-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 8px; overflow: hidden;
+    }
+    .phase-header {
+      padding: 14px 18px; border-bottom: 1px solid var(--border);
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+    }
+    .phase-1 .phase-header { color: var(--teal); background: rgba(78,158,138,0.06); }
+    .phase-2 .phase-header { color: var(--gold); background: rgba(232,184,75,0.06); }
+    .phase-3 .phase-header { color: var(--coral); background: rgba(232,113,74,0.06); }
+    .phase-body { padding: 16px 18px; }
+    .phase-title { font-size: 14px; font-weight: 600; color: var(--cream); margin-bottom: 10px; }
+    .phase-desc { font-size: 12px; color: var(--muted); line-height: 1.65; margin-bottom: 14px; }
+    .exit-condition {
+      background: var(--faint); border-radius: 6px;
+      padding: 10px 12px;
+    }
+    .exit-label {
+      font-size: 9px; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 4px;
+    }
+    .exit-text { font-size: 12px; color: rgba(245,239,232,0.6); line-height: 1.5; }
+
+    /* ── MATCH CARDS ───────────────────────────────────────────── */
+    .matches { display: flex; flex-direction: column; gap: 12px; margin: 24px 0; }
+    .match-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 8px; padding: 16px 20px;
+    }
+    .match-type {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--coral); margin-bottom: 6px;
+    }
+    .match-people {
+      font-size: 14px; font-weight: 600;
+      color: var(--cream); margin-bottom: 6px;
+    }
+    .match-detail { font-size: 13px; color: var(--muted); line-height: 1.6; }
+    .match-silent-badge {
+      display: inline-block; margin-top: 8px;
+      background: rgba(232,113,74,0.1); border: 1px solid rgba(232,113,74,0.25);
+      color: var(--coral); border-radius: 4px;
+      padding: 2px 8px; font-size: 10px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+    }
+
+    /* ── CLOSING ───────────────────────────────────────────────── */
+    .closing {
+      border-top: 1px solid var(--border);
+      padding: 60px 0 0;
+      text-align: center;
+    }
+    .closing-headline {
+      font-family: 'Playfair Display', serif;
+      font-weight: 800; font-size: 24px;
+      color: var(--cream); margin-bottom: 16px;
+    }
+    .closing p { max-width: 520px; margin: 0 auto; color: var(--muted); }
+
+    /* ── RESPONSIVE ────────────────────────────────────────────── */
+    @media (max-width: 700px) {
+      nav { padding: 0 20px; }
+      .nav-links { display: none; }
+      .page { padding: 0 20px 60px; }
+      .hero-meta { grid-template-columns: repeat(2, 1fr); }
+      .stat-row { grid-template-columns: repeat(2, 1fr); }
+      .taxonomy { grid-template-columns: 1fr; }
+      .surfaces { grid-template-columns: 1fr; }
+      .failure-grid { grid-template-columns: 1fr; }
+      .jira-outcomes { grid-template-columns: 1fr; }
+      .built-vs { grid-template-columns: 1fr; }
+      .built-col:first-child { border-right: none; border-bottom: 1px solid var(--border); }
+      .rollout { grid-template-columns: 1fr; }
+      .contrast { grid-template-columns: 1fr; }
+      .contrast-col:first-child { border-right: none; border-bottom: 1px solid var(--border); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <span class="wordmark">Inkitt</span>
+    <span class="sub">Org Intelligence</span>
+  </div>
+  <div class="nav-links">
+    <a href="#ethos">Design Ethos</a>
+    <a href="#problem">The Problem</a>
+    <a href="#how">How It Works</a>
+    <a href="#found">What It Found</a>
+    <a href="#promise">Promise Gap</a>
+    <a href="#escalation">Escalation</a>
+    <a href="#failures">Failure Modes</a>
+    <a href="#built">Built vs Next</a>
+    <a href="#rollout">90-Day Rollout</a>
+  </div>
+</nav>
+
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">Case Study</div>
+    <h1>Thinking, Design,<br>and Building</h1>
+    <p class="hero-sub">A complete answer to the brief — information architecture, the promise gap, automatic escalation, failure modes, and the 90-day rollout. With the thinking behind every decision.</p>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <div class="meta-label">Author</div>
+        <div class="meta-value">Sonal</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Date</div>
+        <div class="meta-value">March 2026</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Built in</div>
+        <div class="meta-value">3 days</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Status</div>
+        <div class="meta-value" style="color: var(--teal);">Working prototype</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 1: DESIGN ETHOS ── -->
+  <div class="section" id="ethos">
+    <div class="section-number">Before I built anything</div>
+    <h2>Design Ethos</h2>
+    <p class="section-sub">The question no brief asks but every system depends on.</p>
+
+    <p>Not when it's technically impressive. Not when it's accurate. People trust a system when it makes their life easier without making them feel watched. When it remembers things so they don't have to. When it helps before it judges. When it respects the authority structure that already exists.</p>
+
+    <h3 style="margin-top: 28px; margin-bottom: 12px; color: var(--muted); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 700;">Why most accountability tools die in week three</h3>
+    <p style="margin-bottom: 24px;">Most systems are built backwards — designed to surface failures, to catch people out, to give management visibility into who's underperforming. The predictable result is surveillance anxiety. People learn what the system watches for and start performing for it. The system gets technically accurate data about a sanitised version of reality.</p>
+
+    <h3 style="margin-bottom: 16px;">The four principles</h3>
+    <div class="principles">
+      <div class="principle principle-coral">
+        <div class="principle-body">
+          <div class="principle-title">Assists before it flags</div>
+          <div class="principle-desc">Every message is framed as a helping hand. 'Looks like X was due today — anything I can help unblock?' not 'Commitment not confirmed closed.' The language is a colleague, not a compliance system. Framing matters more than functionality.</div>
+        </div>
+      </div>
+      <div class="principle principle-gold">
+        <div class="principle-body">
+          <div class="principle-title">Respects the authority chain</div>
+          <div class="principle-desc">Messages go to team leads, not individuals. The team lead sees everything before it surfaces upward and can add context before any escalation reaches the CEO. The system never goes around a manager to ping someone directly — that destroys trust instantly.</div>
+        </div>
+      </div>
+      <div class="principle principle-teal">
+        <div class="principle-body">
+          <div class="principle-title">Remembers so people don't have to</div>
+          <div class="principle-desc">The cognitive load of tracking what was promised, by whom, to whom, connected to which OKR — that lives in the system, not in anyone's head. The morning message isn't a to-do list the team lead has to maintain. It's the system saying: I've been paying attention so you don't have to.</div>
+        </div>
+      </div>
+      <div class="principle principle-blue">
+        <div class="principle-body">
+          <div class="principle-title">Credits as loudly as it flags problems</div>
+          <div class="principle-desc">A team that delivers consistently sees green. Hit rate is something people become proud of, not afraid of. The system isn't just watching for failures — it's tracking reliability, and reliability deserves recognition. Over time, the team lead with a 92% hit rate tells her peers about it. That's the rollout selling itself.</div>
+        </div>
+      </div>
+    </div>
+
+    <blockquote class="teal">
+      <p>One message per day to team leads. Never to individual contributors. The CEO sees commitment health weekly, not daily. The goal is the minimum footprint that produces maximum signal — a system quiet enough that people forget it's there, useful enough that they'd notice if it wasn't.</p>
+    </blockquote>
+
+    <p style="font-style: italic; color: var(--muted); font-size: 14px; text-align: center; margin-top: 20px;">The measure of success isn't how many blockers it catches. It's whether team leads open the morning message before their standup.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── SECTION 2: THE PROBLEM ── -->
+  <div class="section" id="problem">
+    <div class="section-number">Question 00</div>
+    <h2>The Problem</h2>
+    <p class="section-sub">Every cross-team blocker, every slipped commitment, every OKR drift signal flows through you.</p>
+
+    <p>Inkitt already has transcription. The CEO already uses AI tooling. Two teams are already piloting standup transcription. The gap isn't data — it's that data without synthesis is just noise. Every morning, five standup digests exist. Nobody is automatically connecting the dots between them.</p>
+
+    <div style="display: flex; flex-direction: column; gap: 12px; margin: 28px 0;">
+      <div class="principle principle-coral">
+        <div class="principle-body">
+          <div class="principle-title">Silent blockers</div>
+          <div class="principle-desc">The most dangerous blockers are never raised. Lena knows she's waiting on DS. Noor knows she's behind on a delivery. Neither knows they're the same problem. The connection only exists if a human reads both standups and holds them in their head simultaneously.</div>
+        </div>
+      </div>
+      <div class="principle principle-gold">
+        <div class="principle-body">
+          <div class="principle-title">Monthly OKR reviews</div>
+          <div class="principle-desc">OKRs get set quarterly and reviewed monthly. By the time drift is visible in a review meeting, it's usually too late to course-correct. Three weeks of a team working on the wrong thing compounds before anyone sees it.</div>
+        </div>
+      </div>
+      <div class="principle principle-blue">
+        <div class="principle-body">
+          <div class="principle-title">The promise gap</div>
+          <div class="principle-desc">Someone says 'I'll have it by Thursday' in a standup. Nothing creates a record. No ticket, no follow-up, no verification. It lives in memory — and memory is lossy, especially across teams who share no common system.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="stat-num" style="color: var(--coral);">16</div>
+        <div class="stat-label">days lost to waiting — found across 3 standups</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color: var(--gold);">5</div>
+        <div class="stat-label">team digests every morning, zero automatic synthesis</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color: var(--teal);">0</div>
+        <div class="stat-label">cross-team blockers raised explicitly in standups</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color: var(--blue);">1</div>
+        <div class="stat-label">person currently performing all synthesis — the CEO</div>
+      </div>
+    </div>
+
+    <blockquote>
+      <p>"We do it manually. I always forget someone."</p>
+      <cite>— Aditya, DS lead, end of standup. This line, said casually, is the entire problem statement.</cite>
+    </blockquote>
+
+    <p>The system doesn't replace the CEO's judgment. It replaces the data gathering that precedes judgment — the part that should be automatic but currently isn't.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── SECTION 3: HOW IT WORKS ── -->
+  <div class="section" id="how">
+    <div class="section-number">Question 01</div>
+    <h2>How It Works</h2>
+    <p class="section-sub">Information Architecture — how raw speech becomes executive action.</p>
+
+    <p>Three Claude API calls. Three structured outputs. One CEO digest. Architecture comes after ethos — you understand <em>why</em> before you understand <em>what</em>.</p>
+
+    <!-- Pipeline -->
+    <div class="pipeline">
+      <div class="pipeline-step">
+        <div class="step-label">Input</div>
+        <div class="step-name">Standup Transcript</div>
+      </div>
+      <div class="pipeline-arrow"></div>
+      <div class="pipeline-step">
+        <div class="step-label">Step 1</div>
+        <div class="step-name">Extraction per Member</div>
+      </div>
+      <div class="pipeline-arrow"></div>
+      <div class="pipeline-step">
+        <div class="step-label">Step 2</div>
+        <div class="step-name">Blocker Classification</div>
+      </div>
+      <div class="pipeline-arrow"></div>
+      <div class="pipeline-step">
+        <div class="step-label">Step 3</div>
+        <div class="step-name">Cross-Team Matching</div>
+      </div>
+      <div class="pipeline-arrow"></div>
+      <div class="pipeline-step" style="border-color: rgba(232,113,74,0.4); background: rgba(232,113,74,0.06);">
+        <div class="step-label">Output</div>
+        <div class="step-name" style="color: var(--coral);">CEO Digest</div>
+      </div>
+    </div>
+
+    <h3 style="margin-top: 32px; margin-bottom: 16px;">Blocker taxonomy — 4 types, each routes differently</h3>
+    <div class="taxonomy">
+      <div class="taxonomy-card">
+        <div class="taxonomy-type" style="color: var(--gold);">Fundamental</div>
+        <div class="taxonomy-desc">Team owns the problem. Internal issue with no cross-team dependency.</div>
+        <span class="taxonomy-action">→ Team lead must act</span>
+      </div>
+      <div class="taxonomy-card">
+        <div class="taxonomy-type" style="color: var(--coral);">Waiting known</div>
+        <div class="taxonomy-desc">Blocked on a named person or team. Dependency is visible and specific.</div>
+        <span class="taxonomy-action">→ Named person must deliver</span>
+      </div>
+      <div class="taxonomy-card">
+        <div class="taxonomy-type" style="color: var(--coral);">Waiting unknown</div>
+        <div class="taxonomy-desc">Blocked, but source unclear. Nobody knows who owns the resolution.</div>
+        <span class="taxonomy-action">→ CEO must route</span>
+      </div>
+      <div class="taxonomy-card">
+        <div class="taxonomy-type" style="color: var(--blue);">Systemic</div>
+        <div class="taxonomy-desc">Same block affecting two or more teams. Root cause, not a one-off.</div>
+        <span class="taxonomy-action">→ CEO must solve root cause</span>
+      </div>
+    </div>
+
+    <p style="margin-top: 4px; margin-bottom: 8px;">A free-text blocker is useless for matching. A typed one is actionable. The key design decision is the taxonomy — four types instead of free text forces every blocker into a routing decision.</p>
+
+    <div class="in-tool">
+      <div class="in-tool-label">In the tool</div>
+      <p>Tab 1 middle panel — each person appears as a row with a color-coded blocker chip: red for waiting, amber for fundamental, green for none. CROSS-TEAM and CEO badges computed client-side from matcher output.</p>
+    </div>
+
+    <h3 style="margin-top: 32px; margin-bottom: 16px;">State machine — five states, escalates on persistence not severity</h3>
+    <div class="state-machine">
+      <div class="state">
+        <div class="state-dot state-blue">1</div>
+        <div class="state-name">Open</div>
+        <div class="state-trigger">Day 1</div>
+      </div>
+      <div class="state-line">→</div>
+      <div class="state">
+        <div class="state-dot state-gold">2</div>
+        <div class="state-name">Persisting</div>
+        <div class="state-trigger">Day 3, no resolution</div>
+      </div>
+      <div class="state-line">→</div>
+      <div class="state">
+        <div class="state-dot state-red">3</div>
+        <div class="state-name">Critical</div>
+        <div class="state-trigger">Day 5 or OKR risk</div>
+      </div>
+      <div class="state-line">→</div>
+      <div class="state">
+        <div class="state-dot state-green">4</div>
+        <div class="state-name">Resolved</div>
+        <div class="state-trigger">Closed in standup</div>
+      </div>
+      <div class="state-line">→</div>
+      <div class="state">
+        <div class="state-dot state-red">5</div>
+        <div class="state-name">Regressed</div>
+        <div class="state-trigger">Returns after close — systemic flag</div>
+      </div>
+    </div>
+
+    <h3 style="margin-top: 32px; margin-bottom: 16px;">Three surfaces — each audience sees only what they need to act</h3>
+    <div class="surfaces">
+      <div class="surface-card">
+        <div class="surface-label">Team lead</div>
+        <div class="surface-title">Morning Briefing</div>
+        <div class="surface-desc">Before standup. What their team committed to today, which downstream teams are waiting, yesterday's unresolved blockers. They walk in already informed.</div>
+      </div>
+      <div class="surface-card" style="border-color: rgba(232,113,74,0.3);">
+        <div class="surface-label" style="color: var(--coral);">CEO</div>
+        <div class="surface-title">7am Digest</div>
+        <div class="surface-desc">Max 5 items ordered by OKR impact. Every item has a named owner, specific action, and due time. A decision list, not a summary.</div>
+      </div>
+      <div class="surface-card">
+        <div class="surface-label">Company</div>
+        <div class="surface-title">Dashboard</div>
+        <div class="surface-desc">Weekly pulse. OKR progress bars, dependency map, commitment hit rate, action board. For deeper review, not daily ops.</div>
+      </div>
+    </div>
+
+    <div class="in-tool">
+      <div class="in-tool-label">In the tool</div>
+      <p>Tab 1 right panel — CEO digest. Org Dashboard tab — dependency map shows team nodes with edges between them, thickness proportional to days unresolved. DS and Content pulse red as shared bottlenecks.</p>
+    </div>
+
+    <blockquote class="coral">
+      <p>Speech becomes structure, structure finds connections no single team can see, connections get scored by OKR impact, and the highest-impact ones surface as named actions with named owners — not a summary, a decision list.</p>
+    </blockquote>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── SECTION 4: WHAT IT FOUND ── -->
+  <div class="section" id="found">
+    <div class="section-number">Evidence</div>
+    <h2>What It Found</h2>
+    <p class="section-sub">From three standups — Product, Data Science, Content — run on March 23.</p>
+
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="stat-num" style="color: var(--blue);">10</div>
+        <div class="stat-label">cross-team matches</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color: var(--gold);">2</div>
+        <div class="stat-label">shared bottlenecks</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color: var(--coral);">16</div>
+        <div class="stat-label">days lost to waiting</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color: var(--teal);">3</div>
+        <div class="stat-label">CEO escalations</div>
+      </div>
+    </div>
+
+    <p style="margin-bottom: 12px;">This is what the system found that no single person could see:</p>
+
+    <div class="matches">
+      <div class="match-card">
+        <div class="match-type">Waiting dependency — silent</div>
+        <div class="match-people">Lena (Product) → Noor (DS)</div>
+        <div class="match-detail">Lena waiting 3 days for cohort data. Noor's pipeline bug caused the delay but she didn't communicate it. Neither team had the full picture. Neither raised it as a cross-team issue.</div>
+        <span class="match-silent-badge">Neither team raised this</span>
+      </div>
+      <div class="match-card">
+        <div class="match-type">Architectural conflict — silent</div>
+        <div class="match-people">Vikram (DS) + Rohan (Product)</div>
+        <div class="match-detail">Both building on the same reader engagement signals. Both flagged potential overlap vaguely in their own standups. Neither talked to the other. The system matched two casual mentions into one concrete conflict requiring a decision.</div>
+        <span class="match-silent-badge">Neither named the other</span>
+      </div>
+      <div class="match-card">
+        <div class="match-type">Shared bottleneck — silent</div>
+        <div class="match-people">Content team blocking Product + DS</div>
+        <div class="match-detail">Tomás (Product) waiting 6 days for moderation SLA. Mei (DS) waiting 5 days for labeled data. Same team, two different requests, 11 total days lost. Neither team knew about the other's request.</div>
+        <span class="match-silent-badge">11 total days lost</span>
+      </div>
+      <div class="match-card">
+        <div class="match-type">Single point of failure — emergent</div>
+        <div class="match-people">Aditya blocking three obligations simultaneously</div>
+        <div class="match-detail">Appears as waiting_on_person for Lena's cohort data, Preethi's CEO report, and Sasha's model card review. No standup said 'Aditya is overloaded.' It emerged only from reading all three team JSONs simultaneously.</div>
+        <span class="match-silent-badge">Found by reading all three teams at once</span>
+      </div>
+    </div>
+
+    <h3 style="margin-top: 28px; margin-bottom: 16px;">The contrast that makes the case</h3>
+    <div class="contrast">
+      <div class="contrast-col">
+        <div class="contrast-label human">What Sofia said</div>
+        <p style="color: rgba(245,239,232,0.5);">"Alright, good standup everyone. Lots of good energy this week, the spring campaign is going to be great."</p>
+      </div>
+      <div class="contrast-col system-col">
+        <div class="contrast-label system">What the system saw</div>
+        <p>3 of 5 members slipped deadlines last week. 2 external team requests unanswered. CEO report 3 days late. Content is a shared bottleneck blocking both Product and DS.</p>
+      </div>
+    </div>
+
+    <blockquote>
+      <p>Aditya appears twice in the CEO digest. No standup said he was overloaded. The system found it by reading all three teams simultaneously. The CEO's recommended action is one conversation — not three separate follow-ups.</p>
+    </blockquote>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── SECTION 5: PROMISE GAP ── -->
+  <div class="section" id="promise">
+    <div class="section-number">Question 02</div>
+    <h2>The Promise Gap</h2>
+    <p class="section-sub">How do you close the space between someone saying 'I'll do X' and it actually being verified?</p>
+
+    <p style="margin-bottom: 20px;">The promise gap has three distinct failure points. Most systems solve one. This system solves all three.</p>
+
+    <div class="principles" style="margin-bottom: 28px;">
+      <div class="principle principle-coral">
+        <div class="principle-body">
+          <div class="principle-title">Failure point 1 — The commitment is never recorded officially</div>
+          <div class="principle-desc">Someone says 'I'll have the spec ready by Thursday.' Nothing creates a record. The extraction prompt pulls every commitment from the transcript automatically — owner, what, by when, downstream impact, OKR connection. The commitment exists the moment it's spoken.</div>
+        </div>
+      </div>
+      <div class="principle principle-gold">
+        <div class="principle-body">
+          <div class="principle-title">Failure point 2 — Nobody checks whether it happened</div>
+          <div class="principle-desc">The system treats silence as signal. The morning of the due date, the team lead gets a message listing what their team committed to deliver today. After that day's standup extraction runs, the system checks: did this commitment appear as closed? If no — one evening nudge to the team lead.</div>
+        </div>
+      </div>
+      <div class="principle principle-teal">
+        <div class="principle-body">
+          <div class="principle-title">Failure point 3 — Patterns of slipping are invisible</div>
+          <div class="principle-desc">One slip is a one-off. Three slips in a week is a pattern. The commitment ledger tracks hit rate per person and per team over time. In the tool, the Content team's hit rate is visibly worse than DS and Product — three slips from last week that were never called out in any standup.</div>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom: 16px;">Jira cross-reference — three outcomes</h3>
+    <div class="jira-outcomes">
+      <div class="jira-card match">
+        <div class="jira-scenario">Match</div>
+        <div class="jira-title">Ticket exists, dates align</div>
+        <div class="jira-action">Tracked automatically via Jira. No action needed.</div>
+      </div>
+      <div class="jira-card diverge">
+        <div class="jira-scenario">Diverge</div>
+        <div class="jira-title">Ticket exists, dates differ</div>
+        <div class="jira-action">Flagged immediately — someone is working off different information.</div>
+      </div>
+      <div class="jira-card missing">
+        <div class="jira-scenario">Missing</div>
+        <div class="jira-title">No ticket exists</div>
+        <div class="jira-action">Team lead gets a one-tap prompt to create it. Highest-risk category.</div>
+      </div>
+    </div>
+
+    <div class="in-tool">
+      <div class="in-tool-label">In the tool</div>
+      <p>Commitments tab — every verbal commitment from all three standups appears as a row. SLIPPED rows with red left borders are commitments that passed due date with no closed signal. Content team has the most. Sofia ended her standup with 'lots of good energy.' The ledger saw three slips.</p>
+    </div>
+
+    <h3 style="margin-top: 28px; margin-bottom: 16px;">The three Slack messages — exact language</h3>
+    <div class="slack-messages">
+      <div class="slack-msg">
+        <div class="slack-time">7am — Morning briefing</div>
+        <div class="slack-text">Good morning Maya. Your team has 2 commitments due today:
+  • Lena — Segment targeting finalized (blocking DS team)
+  • Rohan — A/B test acceptance criteria
+
+Both have downstream teams waiting. Flag anything at risk before standup.</div>
+      </div>
+      <div class="slack-msg">
+        <div class="slack-time">During day — No Jira ticket found</div>
+        <div class="slack-text">Lena committed to 'segment targeting finalized' by Thursday.
+No matching Jira ticket exists.
+
+Add it to Jira?</div>
+        <div>
+          <span class="slack-button">Yes — I'll create it</span>
+          <span class="slack-button">No — tracking verbally</span>
+        </div>
+      </div>
+      <div class="slack-msg">
+        <div class="slack-time">6pm — EOD check</div>
+        <div class="slack-text">Looks like Lena's segment targeting was due today.
+Not mentioned in today's standup.
+
+Still on track?</div>
+        <div>
+          <span class="slack-button">Closed ✓</span>
+          <span class="slack-button">Needs more time</span>
+          <span class="slack-button">Blocked</span>
+        </div>
+      </div>
+    </div>
+
+    <blockquote class="teal">
+      <p>The whole loop runs without anyone manually tracking anything. A commitment made verbally in a standup is captured, checked against Jira, surfaced on the day it's due, and escalated if it doesn't close.</p>
+    </blockquote>
+
+    <p style="margin-top: 12px; font-size: 13px; color: var(--muted);">Note on Jira: Jira was deliberately not the starting point. The commitment ledger starts with verbal promises — the highest-risk category because nothing official tracks them. Jira becomes the second signal in phase two: catch the divergence between what people say and what the ticket shows.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── SECTION 6: ESCALATION ── -->
+  <div class="section" id="escalation">
+    <div class="section-number">Question 03</div>
+    <h2>Automatic Escalation</h2>
+    <p class="section-sub">How do you flag cross-team blockers without requiring people to manually raise them?</p>
+
+    <p style="margin-bottom: 20px;">The core insight: most cross-team blockers are never manually raised — not because people are hiding them, but because no single person has visibility across all teams simultaneously. The system catches this not by asking people to raise blockers, but by reading all teams at once and finding connections automatically.</p>
+
+    <h3 style="margin-bottom: 14px;">Layer 1 — Detection: five rules applied to all JSONs simultaneously</h3>
+    <table class="rule-table">
+      <thead>
+        <tr>
+          <th style="width: 60px;">Rule</th>
+          <th style="width: 160px;">Type</th>
+          <th>How it fired on our data</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="rule-badge" style="background: rgba(59,111,160,0.15); color: var(--blue);">R1</span></td>
+          <td style="color: var(--cream);">Waiting dependency</td>
+          <td>Lena's blocker description matches Noor's undelivered commitment. Neither said 'cross-team issue.' Matched by comparing waiting_on description against other team's ambiguous_items.</td>
+        </tr>
+        <tr>
+          <td><span class="rule-badge" style="background: rgba(59,111,160,0.15); color: var(--blue);">R2</span></td>
+          <td style="color: var(--cream);">Missed delivery</td>
+          <td>Noor said no blockers but ambiguous_items shows cohort task for Lena undelivered. Fires independently of Rule 1 — different match type, different action.</td>
+        </tr>
+        <tr>
+          <td><span class="rule-badge" style="background: rgba(59,111,160,0.15); color: var(--blue);">R3</span></td>
+          <td style="color: var(--cream);">Architectural conflict</td>
+          <td>Vikram and Rohan both flagged possible overlap in passing, in different standups, without naming each other. Two vague signals matched into one concrete conflict.</td>
+        </tr>
+        <tr>
+          <td><span class="rule-badge" style="background: rgba(59,111,160,0.15); color: var(--blue);">R4</span></td>
+          <td style="color: var(--cream);">Shared bottleneck</td>
+          <td>Content appears as waiting_on_team in both Tomás's and Mei's blockers. Same team, two teams waiting, neither knowing about the other. 11 days lost total.</td>
+        </tr>
+        <tr>
+          <td><span class="rule-badge" style="background: rgba(59,111,160,0.15); color: var(--blue);">R5</span></td>
+          <td style="color: var(--cream);">Unowned request</td>
+          <td>DS labeled data request fell between Ren and Yuki with neither owning it. Caught from Sofia's standup where she discovered it live.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin-top: 28px; margin-bottom: 12px;">Layer 2 — Prioritisation: not everything escalates</h3>
+    <p style="margin-bottom: 16px;">Detection without prioritisation is just noise. The system only escalates when three conditions are simultaneously true: severity is Critical <em>AND</em> the match was silent <em>AND</em> days unresolved ≥ 3. Everything else stays at team lead level.</p>
+
+    <div class="in-tool">
+      <div class="in-tool-label">In the tool</div>
+      <p>CEO digest right panel — max 5 items, ordered by OKR impact score. Formula: days at risk ÷ days remaining in quarter × (1 − OKR progress) × OKR tier weight. Impact Calculator on Org Dashboard shows days lost and projected 5-day erosion per critical OKR.</p>
+    </div>
+
+    <h3 style="margin-top: 28px; margin-bottom: 12px;">Layer 3 — Routing: escalation reaches the right person</h3>
+    <p style="margin-bottom: 16px;">Every escalation has a named recipient and a recommended action — not just a flag. 'Aditya to send Lena a confirmed delivery date by 10am today' tells the CEO what to do, not just that there's a problem. Waiting-known blockers go to the named team's lead. Waiting-unknown go to the CEO for routing. Shared bottlenecks go to the CEO with the full picture.</p>
+
+    <h3 style="margin-top: 28px; margin-bottom: 16px;">The state machine underneath it all</h3>
+    <div class="state-machine">
+      <div class="state">
+        <div class="state-dot state-blue">O</div>
+        <div class="state-name">Open</div>
+        <div class="state-trigger">Day 1</div>
+      </div>
+      <div class="state-line">→</div>
+      <div class="state">
+        <div class="state-dot state-gold">P</div>
+        <div class="state-name">Persisting</div>
+        <div class="state-trigger">Day 3, no resolution — team lead notified</div>
+      </div>
+      <div class="state-line">→</div>
+      <div class="state">
+        <div class="state-dot state-red">C</div>
+        <div class="state-name">Critical</div>
+        <div class="state-trigger">Day 5 or OKR impact — CEO escalated</div>
+      </div>
+      <div class="state-line">→</div>
+      <div class="state">
+        <div class="state-dot state-green">R</div>
+        <div class="state-name">Resolved</div>
+        <div class="state-trigger">Disappears from 2 consecutive standups</div>
+      </div>
+      <div class="state-line">→</div>
+      <div class="state">
+        <div class="state-dot state-red">↺</div>
+        <div class="state-name">Regressed</div>
+        <div class="state-trigger">Returns after resolution — systemic flag</div>
+      </div>
+    </div>
+
+    <p style="font-size: 13px; color: var(--muted);">Transitions are time-based, never language-based. This is the escalate-on-persistence principle — the system ignores language and watches for change. A blocker on day five always escalates regardless of how it's described.</p>
+
+    <div class="in-tool" style="margin-top: 16px;">
+      <div class="in-tool-label">In the tool</div>
+      <p>Team health sparklines on Org Dashboard show the trend — Content's line degrades over five standups even though Sofia's language was consistently positive. Action Board on Org Dashboard: Action, Owner, Due, Unblocks, OKR Impact columns. The CEO reads down this table and knows who to talk to.</p>
+    </div>
+
+    <blockquote>
+      <p>Aditya appears twice in the CEO digest. No standup said he was overloaded. The system found it by reading all three teams simultaneously. The CEO's recommended action is one conversation — not three separate follow-ups.</p>
+    </blockquote>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── SECTION 7: FAILURE MODES ── -->
+  <div class="section" id="failures">
+    <div class="section-number">Question 04</div>
+    <h2>Failure Modes</h2>
+    <p class="section-sub">What breaks and how it's designed against.</p>
+
+    <p style="margin-bottom: 24px;">Before naming the failure modes, one framing point: every system that touches organisational behaviour has a meta-failure mode — people stop trusting it and work around it. All four failure modes below are different paths to that same outcome. So the design question is never just 'how do I prevent this failure?' It's always 'how do I prevent this <em>without creating the conditions for the meta-failure?</em>'</p>
+
+    <div class="failure-grid">
+      <div class="failure-card">
+        <div class="failure-top">
+          <div class="failure-name">Garbage in</div>
+          <div class="failure-problem">Vague standup speech degrades extraction silently. Bad data flows downstream and the CEO makes decisions on incorrect information without knowing it.</div>
+        </div>
+        <div class="failure-bottom">
+          <div class="failure-response-label">Design response</div>
+          <div class="failure-response">Semi-structured standup format — five prompts spoken in order. The extraction prompt also produces a confidence score and explicit ambiguous_items list. Uncertain data surfaces as uncertain, never as confident noise. Low confidence extractions are flagged before reaching the CEO digest.</div>
+        </div>
+      </div>
+      <div class="failure-card">
+        <div class="failure-top">
+          <div class="failure-name">Team lead skips verification</div>
+          <div class="failure-problem">The most critical failure mode. Slightly wrong extraction flows into the matcher, digest, and commitment ledger. After weeks of this the outputs are systematically biased and nobody knows why.</div>
+        </div>
+        <div class="failure-bottom">
+          <div class="failure-response-label">Design response</div>
+          <div class="failure-response">Trust by default — two hours of silence after the morning message = confirmed. One tap to correct. The system tracks correction rate per lead over time: high rate means it asks before publishing, low rate means auto-publish. Trust is a function the system learns from behaviour.</div>
+        </div>
+      </div>
+      <div class="failure-card">
+        <div class="failure-top">
+          <div class="failure-name">Alert fatigue</div>
+          <div class="failure-problem">The system flags too many things. The CEO starts skimming the digest, then ignoring it. The tool meant to replace noise becomes noise itself. Self-reinforcing spiral.</div>
+        </div>
+        <div class="failure-bottom">
+          <div class="failure-response-label">Design response</div>
+          <div class="failure-response">OKR impact score as a hard filter. CEO digest never shows more than five items regardless of how many matches exist. One message per day to team leads. Never to individual contributors. Company pulse handles everything below threshold.</div>
+        </div>
+      </div>
+      <div class="failure-card">
+        <div class="failure-top">
+          <div class="failure-name">Gaming the system</div>
+          <div class="failure-problem">People learn to say the right words without resolving anything. 'Making progress' every day indefinitely. The system sees positive language and reports green. Reality is red.</div>
+        </div>
+        <div class="failure-bottom">
+          <div class="failure-response-label">Design response</div>
+          <div class="failure-response">The state machine ignores language entirely. It watches for change, not tone. A blocker on day three with no resolution in closed items is Persisting — regardless of how optimistically it was described. Day five is Critical. Calendar days, not language, determine escalation.</div>
+        </div>
+      </div>
+    </div>
+
+    <blockquote class="teal">
+      <p>Every failure mode is really the same failure — people stop trusting the system and work around it. So every design decision is the same: be useful before being accurate, stay quiet enough that people forget you're there, surface patterns rather than blame individuals.</p>
+    </blockquote>
+
+    <p style="font-size: 14px; font-style: italic; text-align: center; color: var(--muted); margin-top: 12px;">The measure of whether the system is working isn't how many blockers it catches. It's whether team leads open the morning message before their standup.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── SECTION 8: BUILT VS NEXT ── -->
+  <div class="section" id="built">
+    <div class="section-number">Honest accounting</div>
+    <h2>Built vs What's Next</h2>
+    <p class="section-sub">This is a 3-day blueprint — not a finished product. The intelligence layer is built and tested. The connectors are designed but not wired.</p>
+
+    <div class="built-vs">
+      <div class="built-col">
+        <div class="built-header">Built and tested</div>
+        <div class="built-items">
+          <div class="built-item">
+            <div class="built-dot"></div>
+            <div>
+              <div class="built-item-name">Extraction prompt</div>
+              <div class="built-item-desc">Tested on all 3 real transcripts. Handles vague speech, ambiguity, calendar days, confidence scoring.</div>
+            </div>
+          </div>
+          <div class="built-item">
+            <div class="built-dot"></div>
+            <div>
+              <div class="built-item-name">Cross-team matcher</div>
+              <div class="built-item-desc">5 dynamic rules, fully generalised — no hardcoded names or company logic. Works for any team.</div>
+            </div>
+          </div>
+          <div class="built-item">
+            <div class="built-dot"></div>
+            <div>
+              <div class="built-item-name">CEO digest generator</div>
+              <div class="built-item-desc">5-item action-oriented briefing. Correct escalation logic. 16 days lost surfaced.</div>
+            </div>
+          </div>
+          <div class="built-item">
+            <div class="built-dot"></div>
+            <div>
+              <div class="built-item-name">Tab 1 — Live analysis</div>
+              <div class="built-item-desc">Three-panel layout: transcript input, extraction cards with badges, CEO digest panel.</div>
+            </div>
+          </div>
+          <div class="built-item">
+            <div class="built-dot"></div>
+            <div>
+              <div class="built-item-name">Tab 2 — Org dashboard</div>
+              <div class="built-item-desc">OKR bars, team health sparklines, dependency map, commitment hit rate, action board, impact calculator.</div>
+            </div>
+          </div>
+          <div class="built-item">
+            <div class="built-dot"></div>
+            <div>
+              <div class="built-item-name">Tab 3 — Commitments</div>
+              <div class="built-item-desc">Full commitment ledger with status, hit rate per team, team health section.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="built-col">
+        <div class="built-header">Designed, not built yet</div>
+        <div class="built-items">
+          <div class="built-item">
+            <div class="built-dot"></div>
+            <div>
+              <div class="built-item-name">Granola webhook</div>
+              <div class="built-item-desc">Transcripts currently pasted manually. Webhook triggers extraction automatically in production.</div>
+            </div>
+          </div>
+          <div class="built-item">
+            <div class="built-dot"></div>
+            <div>
+              <div class="built-item-name">Slack integration</div>
+              <div class="built-item-desc">Pre-standup briefings, CEO digest delivery, and escalation pings are designed, not wired.</div>
+            </div>
+          </div>
+          <div class="built-item">
+            <div class="built-dot"></div>
+            <div>
+              <div class="built-item-name">OKR tree input</div>
+              <div class="built-item-desc">OKR tags currently inferred from language. Production version loads the tree once per quarter.</div>
+            </div>
+          </div>
+          <div class="built-item">
+            <div class="built-dot"></div>
+            <div>
+              <div class="built-item-name">Jira as second signal</div>
+              <div class="built-item-desc">Deliberately sequenced to phase two — verbal commitments first, Jira divergence detection second.</div>
+            </div>
+          </div>
+          <div class="built-item">
+            <div class="built-dot"></div>
+            <div>
+              <div class="built-item-name">Persistent database</div>
+              <div class="built-item-desc">Currently in-memory. Postgres schema designed, not built. Infrastructure, not the hard part.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom: 14px;">What this week looks like to make it real at Inkitt</h3>
+    <div class="week-plan">
+      <div class="week-row">
+        <div class="week-day">Day 1–2</div>
+        <div class="week-task">Connect real Granola exports from the two teams already piloting transcription. Calibrate the extraction prompt on real Inkitt speech patterns. This is where most tuning work lives.</div>
+      </div>
+      <div class="week-row">
+        <div class="week-day">Day 3</div>
+        <div class="week-task">Wire Slack. Pre-standup briefing to each team lead. CEO digest at 7am. The system now delivers real value on real data with zero manual steps.</div>
+      </div>
+      <div class="week-row">
+        <div class="week-day">Day 4</div>
+        <div class="week-task">Define the OKR tree. One session with the CEO or Chief of Staff. Extraction now maps to real goals instead of inferred ones.</div>
+      </div>
+      <div class="week-row">
+        <div class="week-day">Day 5</div>
+        <div class="week-task">Connect Jira as a second signal. Surface divergence between verbal commitments and ticket due dates. This is where the commitment ledger becomes genuinely powerful.</div>
+      </div>
+      <div class="week-row">
+        <div class="week-day">End of week</div>
+        <div class="week-task">A system running on real Inkitt data, delivering Slack outputs to real people, with OKRs mapped and Jira connected. Not a demo. A working internal tool.</div>
+      </div>
+    </div>
+
+    <blockquote class="coral">
+      <p>What's in the blueprint today is proof the hardest part works. The connectors are engineering, not research.</p>
+    </blockquote>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── SECTION 9: 90-DAY ROLLOUT ── -->
+  <div class="section" id="rollout">
+    <div class="section-number">Question 05</div>
+    <h2>90-Day Rollout</h2>
+    <p class="section-sub">From here to production — sequenced around earning trust before surfacing anything to the CEO.</p>
+
+    <p style="margin-bottom: 24px;">Most rollouts fail because they try to do everything at once. This one builds from the smallest working unit — one team, one extraction, one Slack message — and expands only when each layer is trusted.</p>
+
+    <div class="rollout">
+      <div class="phase-card phase-1">
+        <div class="phase-header">Days 1–30</div>
+        <div class="phase-body">
+          <div class="phase-title">Prove the intelligence layer on real data</div>
+          <div class="phase-desc">Get clean extractions running on Granola exports from the two teams already piloting transcription. Calibrate the extraction prompt on real Inkitt speech patterns. Deliver a daily Slack digest to the CEO only. Nothing else. Build trust before building features.</div>
+          <div class="exit-condition">
+            <div class="exit-label">Exit condition</div>
+            <div class="exit-text">The CEO reads the daily digest and trusts it enough to act on one item without manually verifying it.</div>
+          </div>
+        </div>
+      </div>
+      <div class="phase-card phase-2">
+        <div class="phase-header">Days 31–60</div>
+        <div class="phase-body">
+          <div class="phase-title">Expand to all five teams</div>
+          <div class="phase-desc">Onboard the three remaining teams. Activate cross-team matching across all five. Ship team lead morning briefings via Slack. Start the commitment ledger tracking real verbal commitments. The dependency map and CROSS-TEAM badges become real, not simulated.</div>
+          <div class="exit-condition">
+            <div class="exit-label">Exit condition</div>
+            <div class="exit-text">At least one cross-team blocker resolved faster than it would have been without the system.</div>
+          </div>
+        </div>
+      </div>
+      <div class="phase-card phase-3">
+        <div class="phase-header">Days 61–90</div>
+        <div class="phase-body">
+          <div class="phase-title">CEO-grade infrastructure</div>
+          <div class="phase-desc">Load OKR tree. Connect Jira as a second signal. Wire persistent database. Ship company-wide dashboard. First weekly review using the system instead of manual updates. The CEO stops being the connective tissue.</div>
+          <div class="exit-condition">
+            <div class="exit-label">Exit condition</div>
+            <div class="exit-text">The CEO stops preparing for the weekly cross-team review by reading digests manually. The system prepares it for him.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="margin-top: 32px; margin-bottom: 16px;">On change management</h3>
+    <p style="margin-bottom: 16px;">The technical rollout is the easy part. Getting five teams to change how they run standups is harder. The answer is sequencing and social proof.</p>
+    <p style="margin-bottom: 16px;">You don't mandate the standup format on day one. You show one team lead what the system produced from their standup, let them see their own extraction, and ask: 'Does this feel right? What did I miss?' That conversation builds more buy-in than any top-down mandate.</p>
+    <p>By week six, when the two pilot teams are already getting useful morning briefings and the CEO is citing the digest in meetings, the other three teams ask to join. The rollout sells itself through results, not through authority.</p>
+
+    <blockquote class="blue" style="margin-top: 28px;">
+      <p>By day 90 you stop being the connective tissue. The system is.</p>
+    </blockquote>
+  </div>
+
+  <!-- CLOSING -->
+  <div class="closing">
+    <div class="closing-headline">The hardest part is built.</div>
+    <p>The intelligence layer — extraction, matching, digest, commitment tracking — is tested on real data. The path from blueprint to production is one focused week. The connectors are engineering, not research.</p>
+  </div>
+
+</div>
+
+</body>
+</html>
