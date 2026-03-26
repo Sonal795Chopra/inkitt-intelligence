@@ -368,7 +368,7 @@
     <div class="hero-tag">Technical Overview</div>
     <h1>How Inkitt Org<br>Intelligence Works</h1>
     <p class="hero-lead">
-      A three-stage AI pipeline that transforms raw standup transcripts into a CEO-grade briefing — surfacing cross-team blockers, OKR erosion, and required actions automatically.
+      A three-stage AI pipeline that transforms raw standup transcripts into a CEO-grade briefing, surfacing cross-team blockers, OKR erosion, and required actions automatically.
     </p>
     <div class="hero-meta">
       <div class="hero-stat">
@@ -392,10 +392,10 @@
 
   <!-- PROBLEM -->
   <section id="problem">
-    <div class="section-tag">01 — The Problem</div>
+    <div class="section-tag">01: The Problem</div>
     <h2>Signal is buried in noise</h2>
     <p>
-      Inkitt runs three teams — Product, Data Science, and Content — each doing daily standups. The output is unstructured text: who said what, what they're blocked on, what they committed to. Useful signal exists, but it requires manual extraction to act on.
+      Inkitt runs three teams (Product, Data Science, and Content) each doing daily standups. The output is unstructured text: who said what, what they're blocked on, what they committed to. Useful signal exists, but it requires manual extraction to act on.
     </p>
     <p>
       The CEO problem is specific: by the time cross-team blockers surface in a weekly sync, days have already been lost. A DS engineer waiting on a Product decision for 3 days is not visible unless someone manually connects the dots.
@@ -415,14 +415,14 @@
       <div class="card">
         <div class="card-icon">📋</div>
         <h3>Manual Overhead</h3>
-        <p>Synthesising 3 transcripts into an actionable brief takes 30–60 mins of human effort daily.</p>
+        <p>Synthesising 3 transcripts into an actionable brief takes 30-60 mins of human effort daily.</p>
       </div>
     </div>
   </section>
 
   <!-- PIPELINE -->
   <section id="pipeline">
-    <div class="section-tag">02 — The Solution</div>
+    <div class="section-tag">02: The Solution</div>
     <h2>A three-stage LLM pipeline</h2>
     <p>
       Each stage has a narrow, well-defined job. The output of each stage is structured JSON that feeds directly into the next. This makes the pipeline composable, debuggable, and easy to tune independently.
@@ -430,36 +430,36 @@
 
     <div class="pipeline">
       <div class="pipe-stage stage-1">
-        <div class="pipe-num">Stage 1 — Extract</div>
+        <div class="pipe-num">Stage 1: Extract</div>
         <div class="pipe-title">Per-team extraction</div>
         <div class="pipe-desc">Runs in parallel across all three teams. Each call reads one transcript and returns a structured object: every person, what they're working on, their blocker type, days blocked, and OKR tag.</div>
         <div class="pipe-arrow">→</div>
       </div>
       <div class="pipe-stage stage-2">
-        <div class="pipe-num">Stage 2 — Match</div>
+        <div class="pipe-num">Stage 2: Match</div>
         <div class="pipe-title">Cross-team matching</div>
-        <div class="pipe-desc">Takes all three extracted objects together. Identifies dependency pairs — where person A is blocked waiting on person B from another team — and scores them by severity, days unresolved, and OKR impact.</div>
+        <div class="pipe-desc">Takes all three extracted objects together. Identifies dependency pairs where person A is blocked waiting on person B from another team, and scores them by severity, days unresolved, and OKR impact.</div>
         <div class="pipe-arrow">→</div>
       </div>
       <div class="pipe-stage stage-3">
-        <div class="pipe-num">Stage 3 — Synthesise</div>
+        <div class="pipe-num">Stage 3: Synthesise</div>
         <div class="pipe-title">CEO digest generation</div>
         <div class="pipe-desc">Takes the match output plus all three extractions. Produces a prioritised CEO brief: ranked items with situation, required action, owner, due date, and company-level pulse metrics.</div>
       </div>
     </div>
 
     <div class="callout">
-      <p>"Stages 1 run in parallel — all three team extractions fire simultaneously — so total runtime is roughly the slowest single extraction, not the sum of all three."</p>
+      <p>"Stages 1 run in parallel; all three team extractions fire simultaneously, so total runtime is roughly the slowest single extraction, not the sum of all three."</p>
     </div>
 
     <!-- Stage 1 detail -->
-    <h3 style="margin-top:36px; color: var(--coral);">Stage 1 — Extraction prompt design</h3>
+    <h3 style="margin-top:36px; color: var(--coral);">Stage 1: Extraction prompt design</h3>
     <p>
       The extraction prompt instructs the model to read one standup transcript and return a structured JSON object. The key design choice is the <strong style="color:var(--cream)">blocker taxonomy</strong>: rather than a free-text blocker field, the prompt constrains output to four types.
     </p>
 
     <div class="code-block">
-      <pre><span class="comment">// Blocker type taxonomy — constrains LLM output</span>
+      <pre><span class="comment">// Blocker type taxonomy: constrains LLM output</span>
 <span class="key">"waiting_known"</span>   <span class="str">→ blocked, know who can unblock, cross-team</span>
 <span class="key">"waiting_unknown"</span> <span class="str">→ blocked, unclear ownership</span>
 <span class="key">"fundamental"</span>     <span class="str">→ technical/design problem, no clear unblocking path</span>
@@ -467,17 +467,17 @@
     </div>
 
     <p>
-      This taxonomy matters because Stage 2 (matching) only needs to look at <code style="color:var(--teal); font-family:monospace; font-size:12px;">waiting_known</code> blockers — those are the cross-team dependencies. The other types inform the dashboard but don't drive the matching logic.
+      This taxonomy matters because Stage 2 (matching) only needs to look at <code style="color:var(--teal); font-family:monospace; font-size:12px;">waiting_known</code> blockers; those are the cross-team dependencies. The other types inform the dashboard but don't drive the matching logic.
     </p>
 
     <!-- Stage 2 detail -->
-    <h3 style="margin-top:36px; color: var(--teal);">Stage 2 — Cross-team matching</h3>
+    <h3 style="margin-top:36px; color: var(--teal);">Stage 2: Cross-team matching</h3>
     <p>
       The matcher receives all three extraction objects in a single prompt. It identifies pairs where one person's <code style="color:var(--teal); font-family:monospace; font-size:12px;">waiting_on_team</code> and <code style="color:var(--teal); font-family:monospace; font-size:12px;">waiting_on_person</code> corresponds to a real person in another team's output.
     </p>
 
     <div class="code-block">
-      <pre><span class="comment">// Each match object — output by Stage 2</span>
+      <pre><span class="comment">// Each match object: output by Stage 2</span>
 {
   <span class="key">"match_id"</span>:           <span class="val">"m1"</span>,
   <span class="key">"type"</span>:               <span class="val">"cross_team_dependency"</span>,
@@ -487,28 +487,28 @@
   <span class="key">"person_b"</span>:           <span class="val">"Marcus"</span>,         <span class="comment">// the unblocking person</span>
   <span class="key">"team_b"</span>:             <span class="val">"product"</span>,
   <span class="key">"days_unresolved"</span>:    <span class="val">4</span>,
-  <span class="key">"okr_impact"</span>:         <span class="val">"Experiment Velocity — A/B framework delayed"</span>,
+  <span class="key">"okr_impact"</span>:         <span class="val">"Experiment Velocity: A/B framework delayed"</span>,
   <span class="key">"recommended_action"</span>: <span class="val">"Marcus to share API spec with Jin by EOD"</span>,
   <span class="key">"silent"</span>:             <span class="val">false</span>
 }</pre>
     </div>
 
     <p>
-      The <code style="color:var(--teal); font-family:monospace; font-size:12px;">silent</code> flag identifies blockers that neither person has raised in their standup — discovered by cross-referencing commitments. These are flagged separately because they represent invisible organisational debt.
+      The <code style="color:var(--teal); font-family:monospace; font-size:12px;">silent</code> flag identifies blockers that neither person has raised in their standup, discovered by cross-referencing commitments. These are flagged separately because they represent invisible organisational debt.
     </p>
 
     <!-- Stage 3 detail -->
-    <h3 style="margin-top:36px; color: var(--gold);">Stage 3 — CEO digest synthesis</h3>
+    <h3 style="margin-top:36px; color: var(--gold);">Stage 3: CEO digest synthesis</h3>
     <p>
       The digest prompt receives the full matcher output plus all three extractions. It is instructed to write for a CEO audience: no technical jargon, prioritised by urgency, with one clear action per item, and a named owner.
     </p>
 
     <div class="code-block">
-      <pre><span class="comment">// Each digest item — output by Stage 3</span>
+      <pre><span class="comment">// Each digest item: output by Stage 3</span>
 {
   <span class="key">"priority"</span>:   <span class="val">1</span>,
   <span class="key">"status"</span>:     <span class="val">"🔴"</span>,
-  <span class="key">"title"</span>:      <span class="val">"A/B framework blocked — 4 days"</span>,
+  <span class="key">"title"</span>:      <span class="val">"A/B framework blocked (4 days)"</span>,
   <span class="key">"situation"</span>:  <span class="val">"Jin (DS) cannot run Experiment Velocity tests..."</span>,
   <span class="key">"how_long"</span>:   <span class="val">"4 days unresolved"</span>,
   <span class="key">"action"</span>:     <span class="val">"Marcus shares API spec with Jin by EOD"</span>,
@@ -521,8 +521,8 @@
 
   <!-- UI -->
   <section id="ui">
-    <div class="section-tag">03 — The Interface</div>
-    <h2>Intelligence tab — three panels</h2>
+    <div class="section-tag">03: The Interface</div>
+    <h2>Intelligence tab: three panels</h2>
     <p>
       The main view is three panels in a fixed horizontal layout. Each panel has a distinct job: input, analysis, and action.
     </p>
@@ -573,7 +573,7 @@
       </div>
       <div class="card">
         <h3 style="color:var(--teal);">② Team Intelligence</h3>
-        <p>Per-person rows with blocker severity chips. Cross-team and CEO escalation badges are computed client-side by cross-referencing the matcher output — no extra LLM call needed.</p>
+        <p>Per-person rows with blocker severity chips. Cross-team and CEO escalation badges are computed client-side by cross-referencing the matcher output (no extra LLM call needed).</p>
       </div>
     </div>
     <div class="card-grid">
@@ -583,21 +583,21 @@
       </div>
       <div class="card">
         <h3>Progressive Loading</h3>
-        <p>The status bar in the header shows which phase is running. Extractions fire in parallel — each updates its team card as it completes, so the UI populates incrementally rather than all at once.</p>
+        <p>The status bar in the header shows which phase is running. Extractions fire in parallel; each updates its team card as it completes, so the UI populates incrementally rather than all at once.</p>
       </div>
     </div>
   </section>
 
   <!-- COMMITMENTS -->
   <section id="commitments">
-    <div class="section-tag">04 — Commitments Ledger</div>
-    <h2>Commitments tab — promise tracking across teams</h2>
+    <div class="section-tag">04: Commitments Ledger</div>
+    <h2>Commitments tab: promise tracking across teams</h2>
     <p>
       The second tab is a live commitment ledger: every promise made in the standup, tracked by status, owner, due date, and downstream impact. It answers the question the digest doesn't: <em style="color:var(--cream);">who committed to what, and is it slipping?</em>
     </p>
 
     <div class="callout teal">
-      <p>"The ledger is built entirely client-side from the extraction and matcher outputs — no extra LLM call. <code style="font-family:monospace; color:var(--teal);">buildCommitmentLedger()</code> is a pure function that derives status, days delta, and downstream impact deterministically."</p>
+      <p>"The ledger is built entirely client-side from the extraction and matcher outputs (no extra LLM call). <code style="font-family:monospace; color:var(--teal);">buildCommitmentLedger()</code> is a pure function that derives status, days delta, and downstream impact deterministically."</p>
     </div>
 
     <h3 style="margin-top:32px; color:var(--coral);">Commitment object shape</h3>
@@ -642,7 +642,7 @@
 
     <h3 style="margin-top:32px; color:var(--gold);">Downstream cross-reference</h3>
     <p>
-      The <code style="color:var(--teal); font-family:monospace; font-size:12px;">downstream</code> field is built by joining the commitment ledger with the Stage 2 matcher output. For every cross-team match <code style="font-family:monospace; font-size:12px; color:var(--muted);">(person_a blocked → person_b)</code>, person B's commitment row gets person A in its downstream array. If that match was also CEO-escalated, "CEO" is injected instead — making CEO-impacting slips instantly visible in the ledger.
+      The <code style="color:var(--teal); font-family:monospace; font-size:12px;">downstream</code> field is built by joining the commitment ledger with the Stage 2 matcher output. For every cross-team match <code style="font-family:monospace; font-size:12px; color:var(--muted);">(person_a blocked → person_b)</code>, person B's commitment row gets person A in its downstream array. If that match was also CEO-escalated, "CEO" is injected instead, making CEO-impacting slips instantly visible in the ledger.
     </p>
 
     <h3 style="margin-top:32px;">Three UI sections</h3>
@@ -663,31 +663,31 @@
 
     <h3 style="margin-top:32px;">Seeded historical data</h3>
     <p>
-      To make hit rate meaningful from day one, the ledger seeds 12 historical items: 7 closed and 5 slipped, distributed across teams to produce realistic per-team rates. This gives the metric weight even on the first run — without it, 0 closed / 0 resolved would render the hit rate blank.
+      To make hit rate meaningful from day one, the ledger seeds 12 historical items: 7 closed and 5 slipped, distributed across teams to produce realistic per-team rates. This gives the metric weight even on the first run; without it, 0 closed / 0 resolved would render the hit rate blank.
     </p>
 
     <div class="card-grid three" style="margin-top:16px;">
       <div class="card" style="border-color: rgba(78,158,138,0.3);">
         <h3 style="color:var(--teal);">Product</h3>
-        <p>3 closed + 1 slipped<br><strong style="color:var(--teal);">75% hit rate</strong> — green</p>
+        <p>3 closed + 1 slipped<br><strong style="color:var(--teal);">75% hit rate</strong> (green)</p>
       </div>
       <div class="card" style="border-color: rgba(232,184,75,0.3);">
         <h3 style="color:var(--gold);">Data Science</h3>
-        <p>2 closed + 1 slipped<br><strong style="color:var(--gold);">67% hit rate</strong> — amber</p>
+        <p>2 closed + 1 slipped<br><strong style="color:var(--gold);">67% hit rate</strong> (amber)</p>
       </div>
       <div class="card" style="border-color: rgba(232,113,74,0.3);">
         <h3 style="color:var(--coral);">Content</h3>
-        <p>2 closed + 3 slipped<br><strong style="color:var(--coral);">40% hit rate</strong> — red</p>
+        <p>2 closed + 3 slipped<br><strong style="color:var(--coral);">40% hit rate</strong> (red)</p>
       </div>
     </div>
   </section>
 
   <!-- DASHBOARD -->
   <section id="dashboard">
-    <div class="section-tag">05 — The Dashboard</div>
-    <h2>Org Dashboard — six analytical views</h2>
+    <div class="section-tag">05: The Dashboard</div>
+    <h2>Org Dashboard: six analytical views</h2>
     <p>
-      The third tab is an ops-level dashboard built from the same extraction data. It doesn't make additional API calls — all six views derive from the three extraction objects plus the matcher output.
+      The third tab is an ops-level dashboard built from the same extraction data. It doesn't make additional API calls; all six views derive from the three extraction objects plus the matcher output.
     </p>
 
     <ul class="step-list">
@@ -709,14 +709,14 @@
         <div class="step-num" style="border-color:var(--gold); color:var(--gold);">3</div>
         <div class="step-body">
           <div class="step-title">Blocker Dependency Map</div>
-          <p>Force-directed SVG with three team nodes. Edges are drawn between teams with active cross-team blockers — thickness scales with days unresolved, colour indicates severity. Teams flagged as shared bottlenecks get a pulsing ring animation.</p>
+          <p>Force-directed SVG with three team nodes. Edges are drawn between teams with active cross-team blockers; thickness scales with days unresolved, colour indicates severity. Teams flagged as shared bottlenecks get a pulsing ring animation.</p>
         </div>
       </li>
       <li>
         <div class="step-num">4</div>
         <div class="step-body">
           <div class="step-title">Commitment Hit Rate</div>
-          <p>16-person rolling hit rate (6-sprint average). Sorted ascending to surface underperformers. Coral = below 60%, gold = 60–75%, teal = above 75%. People below threshold get a warning line.</p>
+          <p>16-person rolling hit rate (6-sprint average). Sorted ascending to surface underperformers. Coral = below 60%, gold = 60-75%, teal = above 75%. People below threshold get a warning line.</p>
         </div>
       </li>
       <li>
@@ -738,7 +738,7 @@
 
   <!-- STACK -->
   <section id="stack">
-    <div class="section-tag">06 — Technical Stack</div>
+    <div class="section-tag">06: Technical Stack</div>
     <h2>What it's built with</h2>
 
     <div class="stack-row">
@@ -756,17 +756,17 @@
       The three prompt files (<code style="color:var(--teal); font-family:monospace; font-size:12px;">extraction.js</code>, <code style="color:var(--teal); font-family:monospace; font-size:12px;">crossTeamMatch.js</code>, <code style="color:var(--teal); font-family:monospace; font-size:12px;">ceoDigest.js</code>) each export a single async function that calls the API and returns parsed JSON. This keeps the prompt logic fully decoupled from the React components.
     </p>
     <p>
-      The entire app is a static build with no backend. The Anthropic API key is entered at runtime via a gate screen on first load and stored in <code style="color:var(--teal); font-family:monospace; font-size:12px;">sessionStorage</code> only — it is never baked into the bundle, never committed to the repository, and cleared automatically when the tab closes. A production version would proxy calls through a backend to remove the key from the browser entirely.
+      The entire app is a static build with no backend. The Anthropic API key is entered at runtime via a gate screen on first load and stored in <code style="color:var(--teal); font-family:monospace; font-size:12px;">sessionStorage</code> only; it is never baked into the bundle, never committed to the repository, and cleared automatically when the tab closes. A production version would proxy calls through a backend to remove the key from the browser entirely.
     </p>
 
     <div class="callout teal">
-      <p>"All API calls use structured JSON output — the system prompt specifies a strict schema, and the response is parsed with JSON.parse(). If the model returns invalid JSON the UI shows an error state."</p>
+      <p>"All API calls use structured JSON output; the system prompt specifies a strict schema, and the response is parsed with JSON.parse(). If the model returns invalid JSON the UI shows an error state."</p>
     </div>
   </section>
 
   <!-- DECISIONS -->
   <section id="decisions">
-    <div class="section-tag">07 — Design Decisions</div>
+    <div class="section-tag">07: Design Decisions</div>
     <h2>Key choices and why</h2>
 
     <table>
@@ -787,7 +787,7 @@
         </tr>
         <tr>
           <td>Structured JSON output (not free text)</td>
-          <td>Every downstream component — badges, chips, bars, maps — needs machine-readable data. A structured schema means the UI can render deterministically without parsing natural language.</td>
+          <td>Every downstream component (badges, chips, bars, maps) needs machine-readable data. A structured schema means the UI can render deterministically without parsing natural language.</td>
         </tr>
         <tr>
           <td>Blocker taxonomy (4 types)</td>
@@ -795,11 +795,11 @@
         </tr>
         <tr>
           <td>CEO-specific digest stage</td>
-          <td>The extraction and matching outputs are dense and technical. A separate synthesis stage — prompted specifically for CEO reading level — produces language that is immediately actionable without translation.</td>
+          <td>The extraction and matching outputs are dense and technical. A separate synthesis stage, prompted specifically for CEO reading level, produces language that is immediately actionable without translation.</td>
         </tr>
         <tr>
           <td>OKR erosion calculated client-side</td>
-          <td>Rather than asking the LLM to estimate OKR impact (which varies by interpretation), a simple formula — <code style="font-family:monospace; font-size:11px;">days × 1.8 pts</code> — is applied deterministically. Consistent and fast.</td>
+          <td>Rather than asking the LLM to estimate OKR impact (which varies by interpretation), a simple formula: <code style="font-family:monospace; font-size:11px;">days × 1.8 pts</code>, applied deterministically. Consistent and fast.</td>
         </tr>
         <tr>
           <td>Commitment status computed client-side, not by LLM</td>
@@ -817,7 +817,7 @@
     </table>
 
     <div class="callout gold" style="margin-top:32px;">
-      <p>"The goal was a working prototype that could run a real Inkitt standup and surface something genuinely useful — not a polished product. Every decision was made to maximise signal clarity, not feature count."</p>
+      <p>"The goal was a working prototype that could run a real Inkitt standup and surface something genuinely useful, not a polished product. Every decision was made to maximise signal clarity, not feature count."</p>
     </div>
   </section>
 
